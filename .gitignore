@@ -6,7 +6,7 @@ bin-release/
 
 # Other files and folders
 .settings/
-
+tools/asm/out.txt
 # Executables
 *.swf
 *.air
