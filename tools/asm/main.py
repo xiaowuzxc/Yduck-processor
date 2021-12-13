@@ -1,8 +1,6 @@
 #python边学边做
 #最终将会做一个汇编器
-import sys
-print(sys.path)
-
+import os
 txt=open('./test.txt','r+')
 data=txt.readlines()#list
 #txt.write('sdawd:te')
@@ -25,7 +23,7 @@ while a<i:
         i=len(data)
     a=a+1
 print('over')
-
+os.remove('./out.txt')
 obj=open('./out.txt','w+')
 i=len(data)
 a=0
