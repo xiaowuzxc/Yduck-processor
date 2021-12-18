@@ -12,7 +12,6 @@
 // -----------------------------------------------------------------------------
 module Iaddr 
 #(
-	parameter DP = 1024,
 	parameter DW = 16,
 	parameter AW = 16 
 )(
@@ -34,7 +33,7 @@ always @(posedge clk) begin
 end
 assign gpio_out=gpio_out_reg;
 
-reg [DW-1:0] mem_r [0:DP-1];//内存定义
+reg [DW-1:0] mem_r [(2**AW)-1:0];//内存定义
 
 always @(posedge clk) begin
 	if(we)
