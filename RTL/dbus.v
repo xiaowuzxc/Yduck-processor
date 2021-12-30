@@ -16,12 +16,12 @@ module dbus
 	parameter AW = 16 
 )(
 	input			clk, //时钟
-	input wire 		rst,  //同步复位，高电平有效
+	input			rst,  //同步复位，高电平有效
 	input [DW-1:0]	din, //数据输入
 	input [AW-1:0]	addr, //地址输入
 	input			we, //高电平写使能
-	output reg[DW-1:0] dout, //数据输出
-	input wire [DW-1:0]gpio_in,//输入端口
+	output reg [DW-1:0]	dout, //数据输出
+	input wire [DW-1:0]	gpio_in,//输入端口
 	output wire [DW-1:0]gpio_out//输出端口
 );
 
@@ -30,35 +30,35 @@ module dbus
 localparam s0_bk=0;//区块编号，s<num>_bk=<num>
 wire [DW-1:0]s0_dout;//从->主数据通路
 reg  [DW-1:0]s0_din;//主->从数据通路
-reg  [AW-1:0]s0_addr;//地址通路
+reg  [AW-4:0]s0_addr;//地址通路
 reg  s0_we;//高电平写使能
 //s1
 localparam s1_bk=1;
 wire [DW-1:0]s1_dout;
 reg  [DW-1:0]s1_din;
-reg  [AW-1:0]s1_addr;
+reg  [AW-4:0]s1_addr;
 reg  s1_we;
 /*---------定义区块连线-----------*/
 
 /*---------主->从数据通路-----------*/
 reg [DW-1:0]dinz;//空闲通路
-reg [AW-1:0]addrz;//空闲通路
+reg [AW-4:0]addrz;//空闲通路
 reg wez;//空闲通路
 always @(*) begin
 	case(addr[AW-1:AW-3])
 		s0_bk:begin
 			s0_din=din;//主->从数据通路
-			s0_addr=addr;//地址通路
+			s0_addr=addr[AW-4:0];//地址通路
 			s0_we=we;//高电平写使能
 			end
 		s1_bk:begin
 			s1_din=din;
-			s1_addr=addr;
+			s1_addr=addr[AW-4:0];
 			s1_we=we;
 			end
 		default:begin
 			dinz=din;
-			addrz=addr;
+			addrz=addr[AW-4:0];
 			wez=we;
 			end
 	endcase
@@ -81,4 +81,38 @@ always @(*) begin
 	endcase
 end
 /*---------从->主数据通路-----------*/
+
+
+ram #(
+	.RAM_AW 		( 7  		),
+	.DW     		( 16 		),
+	.AW     		( 13 		))
+u_ram(
+	//ports
+	.clk  		( clk  		),
+	.rst  		( rst  		),
+	.din  		( s0_din  		),
+	.addr 		( s0_addr 		),
+	.we   		( s0_we   		),
+	.dout 		(s0_dout	)
+);
+
+io #(
+	.DW 		( 16 		),
+	.AW 		( 13 		))
+u_io(
+	//ports
+	.clk      		( clk      		),
+	.rst      		( rst      		),
+	.din      		( s1_din      		),
+	.addr     		( s1_addr     		),
+	.we       		( s1_we       		),
+	.dout     		( s1_dout     		),
+	.gpio_in  		( gpio_in  		),
+	.gpio_out 		( gpio_out 		)
+);
+
+
+
+
 endmodule
