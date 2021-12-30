@@ -25,15 +25,15 @@ assign gpio_out=gpio_out_reg;
 always @(posedge clk) begin
 	if(we)
 		case (addr)
-			GPI_A: gpio_out_reg <= din;
+			GPO_A: gpio_out_reg <= din;
 			default: ;
 		endcase
 	else
 		case (addr)
-			GPO_A: dout <= gpio_in_reg;
+			GPI_A: #0.1 dout <= gpio_in_reg;
 			default: ;
 		endcase
-end
 
+end
 
 endmodule

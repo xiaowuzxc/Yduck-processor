@@ -23,6 +23,6 @@ always @(posedge clk) begin
 	if (~we)
 		addr_r <= addr[RAM_AW-1:0];//读行为同步
 end
-assign dout = mem_r[addr_r[RAM_AW-1:0]];
+assign #0.1 dout = mem_r[addr_r[RAM_AW-1:0]];
 
 endmodule
