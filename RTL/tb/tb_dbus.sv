@@ -1,5 +1,5 @@
 `timescale 1ns/100ps
-module tb(); /* this is automatically generated */
+module tb_dbus(); /* this is automatically generated */
 
 parameter DW=16;
 parameter AW=16;
@@ -11,22 +11,28 @@ logic [AW-1:0]addr;
 logic we;
 logic [DW-1:0]gpio_in;
 logic [DW-1:0]gpio_out;
-//sysrst()复位
-task sysrst;//复位任务
-	rst <= '1;
-	din <= '0;
-	addr <= '0;
-	we <= '0;
-	gpio_in <= '0;
-	#2;
-	rst <= '0;
-	#2;
-endtask : sysrst
+
 // clk
 initial begin
 	clk = '0;
 	forever #(0.5) clk = ~clk;
 end
+
+//sysrst()复位
+task sysrst;//复位任务
+	input rstb;
+begin
+	rst <= rstb;
+	din <= 0;
+	addr <= 0;
+	we <= 0;
+	gpio_in <= 0;
+	#2;
+	rst <= ~rstb;
+	#2;
+end
+endtask : sysrst
+
 //写入数据
 task write_d;
 	input [AW-1:0]w_addr;
@@ -52,7 +58,7 @@ endtask : read_d
 
 //启动测试
 initial begin
-	sysrst();//复位系统
+	sysrst(1);//复位系统
 	#1;
 	gpio_in<=16'h1A;
 	#1;
@@ -65,13 +71,11 @@ initial begin
 	#4;
 	read_d(16'h2000);
 	write_d(16'h2001,16'h3C);
-	$display("|---------------------------|");
-	$display("|---随机测试，目标值=%d---",gpio_in);
-	$display("|---------------------------|");
+	$display("|--------Yduck dbus pass---------|");
+
 	#10
 	$finish;
 end
-
 
 //例化数据总线
 dbus #(
