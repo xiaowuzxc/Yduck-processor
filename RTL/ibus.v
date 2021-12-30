@@ -5,14 +5,14 @@
 // Copyright (c) 2014-2021 All rights reserved
 // -----------------------------------------------------------------------------
 // Author : xiaowuzxc
-// File   : Iaddr.v
+// File   : ibus.v
 // Create : 2021-12-10 20:13:36
 // Revise : 2021-12-10 20:13:36
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
-module Iaddr 
+module ibus
 #(
-	parameter DW = 8,
+	parameter DW = 16,
 	parameter AW = 16
 )(
 	input			clk, //时钟
@@ -34,8 +34,9 @@ end
 
 assign dout_pre = mem_r[addr_r];//读取
 assign dout = dout_pre;
+/*
 initial begin
     $readmemb("C:/Users/wu/Desktop/read.txt",mem_r,0,(2**AW)-1);//可以被综合
 end
-
+*/
 endmodule

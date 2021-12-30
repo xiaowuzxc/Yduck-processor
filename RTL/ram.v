@@ -1,19 +1,7 @@
-// -----------------------------------------------------------------------------
-// 储存器建模，在FPGA上会综合成BRAM
-//
-// -----------------------------------------------------------------------------
-// Copyright (c) 2014-2021 All rights reserved
-// -----------------------------------------------------------------------------
-// Author : xiaowuzxc
-// File   : Daddr.v
-// Create : 2021-12-10 20:22:39
-// Revise : 2021-12-10 20:22:39
-// Editor : sublime text3, tab size (4)
-// -----------------------------------------------------------------------------
-module Iaddr 
+module ram
 #(
 	parameter DW = 16,
-	parameter AW = 16 
+	parameter AW = 13 
 )(
 	input			clk, //时钟
 	input [DW-1:0]	din, //数据输入
@@ -24,6 +12,7 @@ module Iaddr
 	output wire [DW-1:0]gpio_out//输出端口
 );
 
+localparam RAM_AW = 7;
 localparam GPI_A = 16'h100;
 localparam GPO_A = 16'h101;
 reg [DW-1:0]gpio_in_reg;
@@ -33,15 +22,14 @@ always @(posedge clk) begin
 end
 assign gpio_out=gpio_out_reg;
 
-reg [DW-1:0] mem_r [(2**AW)-1:0];//内存定义
+reg [DW-1:0] mem_r [(2**RAM_AW)-1:0];//内存定义
 
 always @(posedge clk) begin
 	if(we)
-		case (addr)
-			GPO_A:gpio_out_reg <= din;
-			default :mem_r[addr] <= din;//写入
-		endcase
-		
+		if(addr==GPO_A)
+			gpio_out_reg <= din;
+		else
+			mem_r[addr[(2**RAM_AW)-1:0]] <= din;//写入	
 end
 
 wire ren;
@@ -57,7 +45,7 @@ always @(*) begin
 	case (addr_r)
 		GPI_A:dout_pre = gpio_in_reg;
 		GPO_A:dout_pre = gpio_out_reg;
-		default : dout_pre = mem_r[addr_r];
+		default : dout_pre = mem_r[addr_r[(2**RAM_AW)-1:0]];
 	endcase
 end
 assign dout = dout_pre;
