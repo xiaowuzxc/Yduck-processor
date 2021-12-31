@@ -25,7 +25,7 @@ assign gpio_out=gpio_out_reg;
 always @(posedge clk) begin
 	if(we)
 		case (addr)
-			GPO_A: gpio_out_reg <= din;
+			GPO_A: #0.1 gpio_out_reg <= din;
 			default: ;
 		endcase
 	else

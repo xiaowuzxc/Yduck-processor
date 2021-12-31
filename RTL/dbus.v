@@ -84,9 +84,10 @@ end
 
 
 ram #(
-	.RAM_AW 		( 7  		),
+
 	.DW     		( 16 		),
-	.AW     		( 13 		))
+	.AW     		( 13 		),
+	.RAM_AW 		( 7  		))
 u_ram(
 	//ports
 	.clk  		( clk  		),

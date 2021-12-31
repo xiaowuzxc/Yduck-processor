@@ -13,16 +13,15 @@
 module ibus
 #(
 	parameter DW = 16,
-	parameter AW = 16
+	parameter AW = 16,
+	parameter RAM_AW = 7
 )(
 	input			clk, //时钟
-	input [DW-1:0]	din, //数据输入
 	input [AW-1:0]	addr, //地址输入
-	input			we, //高电平写使能
-	output [DW-1:0] dout //数据输出
+	output wire [DW-1:0] dout //数据输出
     );
     
-reg [DW-1:0] mem_r [(2**AW)-1:0];//内存定义
+reg [DW-1:0] mem_r [(2**RAM_AW)-1:0];//内存定义
 
 wire [DW-1:0] dout_pre;
 reg [AW-1:0] addr_r;//地址寄存器
@@ -32,11 +31,21 @@ always @(posedge clk) begin
 		addr_r <= addr;//读行为同步
 end
 
-assign dout_pre = mem_r[addr_r];//读取
-assign dout = dout_pre;
+assign #0.1 dout = mem_r[addr_r];//读取
 /*
+`define memtest
+`ifdef memtest
 initial begin
-    $readmemb("C:/Users/wu/Desktop/read.txt",mem_r,0,(2**AW)-1);//可以被综合
+	mem_r[0]<=16'hf0;
+	mem_r[1]<=16'hf1;
+	mem_r[2]<=16'hf2;
 end
+`else 
 */
+initial begin
+    $readmemb("../../tools/asm/out.txt",mem_r,0,(2**RAM_AW)-1);//可以被综合
+end
+`endif
+
+
 endmodule

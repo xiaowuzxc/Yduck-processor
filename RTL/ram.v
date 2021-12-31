@@ -1,7 +1,8 @@
 module ram
 #(
 	parameter DW = 16,
-	parameter AW = 13 
+	parameter AW = 13,
+	parameter RAM_AW = 7
 )(
 	input			clk, //时钟
 	input 			rst,  //同步复位，高电平有效
@@ -10,7 +11,7 @@ module ram
 	input			we, //高电平写使能
 	output [DW-1:0] dout //数据输出
 );
-parameter RAM_AW = 7;
+
 reg [DW-1:0] mem_r [(2**RAM_AW)-1:0];//内存定义
 
 always @(posedge clk) begin
