@@ -63,14 +63,15 @@ initial begin
 	gpio_in<=16'h1A;
 	#1;
 	write_d(16'h0,16'h30);
-	read_d(16'h0);
 	write_d(16'h1,16'h31);
 	read_d(16'h1);
+	read_d(16'h0);
 	write_d(16'h2,16'h32);
 	read_d(16'h2);
 	#4;
 	read_d(16'h2000);
 	write_d(16'h2001,16'h3C);
+	read_d(16'h1);
 	$display("|--------Yduck dbus pass---------|");
 
 	#10
