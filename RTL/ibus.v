@@ -43,7 +43,7 @@ end
 `else 
 */
 initial begin
-    $readmemb("../../tools/asm/out.txt",mem_r,0,(2**RAM_AW)-1);//可以被综合
+    $readmemb("../../tools/asm/obj.txt",mem_r,0,(2**RAM_AW)-1);//可以被综合
 end
 `endif
 
