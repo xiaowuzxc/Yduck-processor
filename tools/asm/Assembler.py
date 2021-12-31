@@ -27,7 +27,7 @@ def 指令预处理():
 		inistr=data[行指针]#data的对应行存入inistr
 		inistr=inistr.replace(' ','')#去除此行所有空格
 		inistr=inistr.upper()#所有字母转为大写
-		cntstr=0#字符串计数
+		cntstr=0#字符指针
 		while cntstr<len(inistr):#遍历整行，去除无效内容
 			if inistr[cntstr]=='#' or inistr[cntstr]=='\n' or inistr[cntstr]=='\r':#如果有#或换行
 				inistr=inistr[:cntstr]#储存结束符前的数据
@@ -42,18 +42,33 @@ def 指令预处理():
 			总行数=len(data)#重置行数
 		行指针+=1#切换下一行
 	行指针=0
-	out=open('./out.txt','w+')
+	out=open('./out.txt','w+')#out.txt为经过预处理的指令
 	总行数=len(data)
 	while 行指针<总行数:
 		out.write(data[行指针])#写入
 		out.write('\n')#换行
 		行指针+=1
+	out.close()
 
 def 语法检查():
 	pass
 
-
-
+def 执行汇编():
+	obj=open('./obj.txt','w+')
+	for strdata in data:
+		strdata=strdata+"0v0"
+		obj.write(strdata)#写入
+		obj.write('\n')#换行
+	obj.close()
+'''
+		inistr=data[行指针]#data的对应行存入inistr
+		cntstr=0#字符指针
+		while cntstr<len(inistr):#遍历整行，将助记符转换为二进制
+			if inistr[cntstr]=='#' or inistr[cntstr]=='\n' or inistr[cntstr]=='\r':#如果有#或换行
+				inistr=inistr[:cntstr]#储存结束符前的数据
+				break#结束遍历
+			cntstr+=1#无事发生，下一个字符
+'''
 
 
 检查out文件()#如果已存在out文件，则重新生成
@@ -62,14 +77,8 @@ with open('./asm.txt','r+') as f:#打开test.txt文件
 f.closed#关闭文件
 指令预处理()#预处理data，去除注释、多余行、空格
 语法检查()
-
+执行汇编()
 print('over')
 '''
-obj=open('./obj.txt','w+')
-i=len(data)
-a=0
-while a<i:
-	obj.write(data[a])#写入
-	obj.write('\n')#换行
-	a+=1
+
 '''
