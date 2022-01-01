@@ -1,5 +1,6 @@
-#python边学边做
-#最终将会做一个汇编器
+#python3脚本，大黄鸭汇编器
+
+#导入库
 import os,re
 #定义指令字典
 YDcmd={'NF':'0000','LD':'0001','SV':'0010','IN':'0011','SW':'0100','WR':'0101','CR':'0110',\
@@ -34,6 +35,7 @@ def 指令预处理():
 	while 行指针<总行数:#遍历list
 		inistr=data[行指针]#data的对应行存入inistr
 		inistr=inistr.replace(' ','')#去除此行所有空格
+		inistr=inistr.replace('\t','')#去除此行所有TAB
 		inistr=inistr.upper()#所有字母转为大写
 		cntstr=0#字符指针
 		while cntstr<len(inistr):#遍历整行，去除无效内容
@@ -49,7 +51,7 @@ def 指令预处理():
 			总行数=len(data)#重置行数
 		行指针+=1#切换下一行
 	行指针=0
-	out=open('./out.txt','w+')#out.txt为经过预处理的指令
+	out=open('./out.txt','w+')#创建中间文件，写入经过预处理的指令
 	总行数=len(data)
 	while 行指针<总行数:
 		out.write(data[行指针])#写入
@@ -91,28 +93,22 @@ def 语法检查():
 					print("错误:out.txt 第",行指针+1,"行指令语法错误")
 				inistr=inistr[6:]#储存结束符前的数据
 				inistr=int(inistr)
-				if inistr<0 or inistr>255:
+				if inistr<0 or inistr>255:#检查立即数溢出
 					print("错误:out.txt 第",行指针+1,"行立即数位宽错误")
 		行指针+=1#切换下一行
 
-
-
-def 立即数转换(Tdec):
-	pass
-
 def 执行汇编():
-	obj=open('./obj.txt','w+')
+	obj=open('./obj.txt','w+')#创建输出文件
 	for strdata in data:
-		objdata=""#输入字符串清零
 		ckstr=re.search(r'NF|LD|SV|IN|SW|NOP',strdata)#检测是否匹配8b/NOP指令
 		if ckstr:#8b/NOP指令
 			if re.match(r'NOP',strdata) and len(strdata) < 4:#只有NOP
 				objdata=YDwcm['NOP']+YDwcm['NOP']#一个周期空指令
 			else:#CMD,RG;XX
 				objdata=YDcmd[strdata[0:2]]+YDreg[strdata[3:5]]#第一个8b指令输入
-				if re.match(r'NOP',strdata[6:]):
+				if re.match(r'NOP',strdata[6:]):#CMD,RG;NOP
 					objdata=objdata+YDwcm['NOP']
-				else:
+				else:#CMD,RG;CMD,RG
 					objdata=objdata+YDcmd[strdata[6:8]]+YDreg[strdata[9:]]
 		else:#16b指令
 			if re.match(r'WR|CR|LA|LO',strdata):#16b指令CMD,RG1,RG2
@@ -123,12 +119,14 @@ def 执行汇编():
 		obj.write('\n')#换行
 	obj.close()
 
-
+##################################################
+#--------------------main------------------------#
+##################################################
 检查out文件()#如果已存在out文件，则重新生成
 with open('./asm.txt','r+',encoding='UTF-8') as f:#打开test.txt文件
 	data=f.readlines()#按行读取，生成list至data
 f.closed#关闭文件
-指令预处理()#预处理data，去除注释、多余行、空格
-语法检查()
-执行汇编()
+指令预处理()#预处理data，去除注释、多余行、空格，写入out.txt
+语法检查()#检查语法和立即数
+执行汇编()#二进制代码写入obj.txt
 print('结束汇编')
