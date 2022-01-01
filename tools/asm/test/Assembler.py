@@ -60,23 +60,23 @@ def 语法检查():
 			print("错误:out.txt 第",行指针+1,"行存在非法字符")
 		else:
 			pass
-		ckstr=re.match(r'((NF)|(LD)|(SV)|(IN)|(SW))',inistr)
-		if ckstr:#8b指令
-			ckstr=re.match(r'((NF)|(LD)|(SV)|(IN)|(SW)),((ZE)|(DK)|(PC)|(R[0-9|A|B|C]));(((NF)|(LD)|(SV)|(IN)|(SW)),((ZE)|(DK)|(PC)|(R[0-9|A|B|C]))|NOP)',inistr)
+		ckstr=re.match(r'NF|LD|SV|IN|SW|NOP',inistr)
+		if ckstr:#8b/NOP指令
+			ckstr=re.match(r'((((NF|LD|SV|IN|SW),(ZE|DK|PC|R[0-9|A|B|C]))|NOP);(((NF|LD|SV|IN|SW),(ZE|DK|PC|R[0-9|A|B|C]))|NOP))|NOP',inistr)
 			if ckstr:#匹配8b语法
 				pass
 			else:#不匹配
 				print("错误:out.txt 第",行指针+1,"行指令语法错误")
 		else:#16b指令
-			ckstr=re.match(r'((WR)|(CR)|(LA)|(LO))',inistr)
+			ckstr=re.match(r'WR|CR|LA|LO',inistr)
 			if ckstr:#16b指令CMD,RG1,RG2
-				ckstr=re.match(r'((WR)|(CR)|(LA)|(LO)),((ZE)|(DK)|(PC)|(R[0-9|A|B|C])),((ZE)|(DK)|(PC)|(R[0-9|A|B|C]))',inistr)
+				ckstr=re.match(r'(WR|CR|LA|LO),(ZE|DK|PC|R[0-9|A|B|C]),(ZE|DK|PC|R[0-9|A|B|C])',inistr)
 				if ckstr:
 					pass
 				else:
 					print("错误:out.txt 第",行指针+1,"行指令语法错误")
 			else:#16b指令CMD,RG,$H
-				ckstr=re.match(r'((AD)|(SB)|(JW)|(JA)|(LL)|(LR)|(TL)),((ZE)|(DK)|(PC)|(R[0-9|A|B|C])),\d\d?\d?',inistr)
+				ckstr=re.match(r'(AD|SB|JW|JA|LL|LR|TL),(ZE|DK|PC|R[0-9|A|B|C]),\d\d?\d?',inistr)
 				if ckstr:
 					pass
 				else:

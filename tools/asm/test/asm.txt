@@ -1,11 +1,15 @@
 LD,RC ;NOP 
-  
-NF,R0; IN,DK 
+  NOP;NOP
+LD,32;LD,RC
+NO P
+#
+    
+NF,R0;  IN,DK 
 #115
 LL, R0,256#655
-LL,R0,68
+LL,R0 ,68
 LL,R0,0
-LL,RC,-2
-LL,RF,-2
+LL, RC,-2
+  LL, RF,-2
 WR,RC,DK
 

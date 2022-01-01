@@ -7,10 +7,10 @@ def 检查out文件():
 		f=open('./out.txt')
 		f.close()
 	except IOError:
-		print ("无中间文件")
+		print ("无预处理文件")
 	else:
 		os.remove('./out.txt')
-		print ("重新生成输出文件")
+		print ("重新生成预处理文件")
 	try:
 		f=open('./obj.txt')
 		f.close()
@@ -57,32 +57,34 @@ def 语法检查():
 		inistr=data[行指针]#data的对应行存入inistr
 		ckstr=re.search(r'[^A-Z\d,;]',inistr)
 		if ckstr:
-			print("在out.txt的第",行指针+1,"行出现非法字符")
+			print("错误:out.txt 第",行指针+1,"行存在非法字符")
 		else:
-			print("无非法字符")
-		ckstr=re.match(r'((NF)|(LD)|(SV)|(IN)|(SW))',inistr)
-		if ckstr:#8b指令
-			ckstr=re.match(r'((NF)|(LD)|(SV)|(IN)|(SW)),((ZE)|(DK)|(PC)|(R[0-9|A|B|C]));(((NF)|(LD)|(SV)|(IN)|(SW)),((ZE)|(DK)|(PC)|(R[0-9|A|B|C]))|NOP)',inistr)
+			pass
+		ckstr=re.match(r'NF|LD|SV|IN|SW|NOP',inistr)
+		if ckstr:#8b/NOP指令
+			ckstr=re.match(r'((((NF|LD|SV|IN|SW),(ZE|DK|PC|R[0-9|A|B|C]))|NOP);(((NF|LD|SV|IN|SW),(ZE|DK|PC|R[0-9|A|B|C]))|NOP))|NOP',inistr)
 			if ckstr:#匹配8b语法
 				pass
 			else:#不匹配
-				print("在out.txt的第",行指针+1,"行出现8b指令语法错误")
+				print("错误:out.txt 第",行指针+1,"行指令语法错误")
 		else:#16b指令
-			ckstr=re.match(r'((WR)|(CR)|(LA)|(LO))',inistr)
+			ckstr=re.match(r'WR|CR|LA|LO',inistr)
 			if ckstr:#16b指令CMD,RG1,RG2
-				ckstr=re.match(r'((WR)|(CR)|(LA)|(LO)),((ZE)|(DK)|(PC)|(R[0-9|A|B|C])),((ZE)|(DK)|(PC)|(R[0-9|A|B|C]))',inistr)
+				ckstr=re.match(r'(WR|CR|LA|LO),(ZE|DK|PC|R[0-9|A|B|C]),(ZE|DK|PC|R[0-9|A|B|C])',inistr)
 				if ckstr:
 					pass
 				else:
-					print("在out.txt的第",行指针+1,"行出现16b指令语法错误")
+					print("错误:out.txt 第",行指针+1,"行指令语法错误")
 			else:#16b指令CMD,RG,$H
-				ckstr=re.match(r'((AD)|(SB)|(JW)|(JA)|(LL)|(LR)|(TL)),((ZE)|(DK)|(PC)|(R[0-9|A|B|C])),[\d][\d]([\d])?',inistr)
+				ckstr=re.match(r'(AD|SB|JW|JA|LL|LR|TL),(ZE|DK|PC|R[0-9|A|B|C]),\d\d?\d?',inistr)
 				if ckstr:
 					pass
 				else:
-					print("在out.txt的第",行指针+1,"行出现16b指令语法错误")
-
-
+					print("错误:out.txt 第",行指针+1,"行指令语法错误")
+				inistr=inistr[6:]#储存结束符前的数据
+				inistr=int(inistr)
+				if inistr<0 or inistr>255:
+					print("错误:out.txt 第",行指针+1,"行立即数位宽错误")
 		行指针+=1#切换下一行
 
 def 执行汇编():
