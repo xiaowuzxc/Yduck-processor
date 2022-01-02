@@ -23,6 +23,11 @@ end
 assign gpio_out=gpio_out_reg;
 
 always @(posedge clk) begin
+if(rst) begin
+	gpio_out_reg <= 16'h0;
+	dout <= 16'h0;
+end	
+else
 	if(we)
 		case (addr)
 			GPO_A: #0.1 gpio_out_reg <= din;
