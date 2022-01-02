@@ -71,7 +71,6 @@ else begin
 	if(~jpc)
 		PC <= PC+16'h1;
 	if(we0&&we1&&(waddr0==waddr1)) begin//写地址冲突，优先写端口0
-		$display("write chong tu");
 		case(waddr0)
 			ZEA:;
 			DKA:DK <= din0;
@@ -80,18 +79,15 @@ else begin
 			endcase 
 		end
 	else begin//无冲突，正常写
-		$display("write");
 		if(we0) begin//端口0写
-			$display("write p0");
 			case(waddr0)
 				ZEA:;
-				DKA: begin DK <= din0;$display("write dk"); end
+				DKA:DK <= din0;
 				PCA:if(jpc) PC <= din0;
 				default:RX[waddr0-R0A] <= din0;
 				endcase 
 			end
 		if(we1) begin//端口1写
-			$display("write p1");
 			case(waddr1)
 				ZEA:;
 				DKA:DK <= din1;

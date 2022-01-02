@@ -32,20 +32,9 @@ always @(posedge clk) begin
 end
 
 assign #0.1 dout = mem_r[addr_r];//读取
-/*
-`define memtest
-`ifdef memtest
-initial begin
-	mem_r[0]<=16'hf0;
-	mem_r[1]<=16'hf1;
-	mem_r[2]<=16'hf2;
-end
-`else 
-*/
+
 initial begin
     $readmemb("../../tools/asm/obj.txt",mem_r,0,(2**RAM_AW)-1);//可以被综合
 end
-`endif
-
 
 endmodule
