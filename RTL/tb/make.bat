@@ -10,7 +10,7 @@
 @if %cmchc% == 0 (echo 命令0)^
 else if %cmchc% == 1 (iverilog -g2005-sv -o tb -y .. tb_dbus.sv & echo 开始执行数据总线仿真)^
 else if %cmchc% == 2 (iverilog -g2005-sv -o tb -y .. tb_ibus.sv & echo 开始执行指令总线仿真)^
-else if %cmchc% == 3 (iverilog -g2005-sv -o tb -y .. tb_YD_reg.sv & echo 开始执行指令总线仿真)^
+else if %cmchc% == 3 (iverilog -g2005-sv -o tb -y .. tb_YD_reg.sv & echo 开始执行寄存器组仿真)^
 else if %cmchc% == c (del tb *.lxt & @echo 缓存文件已清理 & goto cmsl)^
 else (echo 命令未找到 & goto cmsl)
 

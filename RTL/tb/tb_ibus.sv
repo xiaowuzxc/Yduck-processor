@@ -49,7 +49,7 @@ initial begin
 	read_d(16'h1);
 	#4;
 	read_d(16'h1);
-	$display("|--------Yduck dbus pass---------|");
+	$display("|--------Yduck ibus pass---------|");
 	#10
 	$finish;
 end

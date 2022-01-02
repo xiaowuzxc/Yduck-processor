@@ -110,7 +110,7 @@ initial begin
 	#0.3;
 	read_d0(4'h1);
 	read_d1(4'h2);
-	//$display("|--------Yduck dbus pass---------|");
+	//$display("|--------Yduck regs pass---------|");
 
 	#10
 	$finish;
