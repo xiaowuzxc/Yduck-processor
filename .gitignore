@@ -19,4 +19,4 @@ tools/asm/out.txt
 RTL/tb/tb
 RTL/tb/tb.lxt
 .vscode/
-syntest/
+RTL/syntest/
