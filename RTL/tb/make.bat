@@ -1,10 +1,10 @@
 @chcp 65001
+:cmsl
 @echo 输入编号并回车，执行对应项目
 @echo 1:执行数据总线仿真
 @echo 2:执行指令总线仿真
 @echo 3:执行寄存器组仿真
 @echo c:清理缓存文件
-:cmsl
 @set /p cmchc=输入命令编号：
 
 @if %cmchc% == 0 (echo 命令0)^
