@@ -1,11 +1,7 @@
 JA,R9,255
-
-    NOP
+NOP
 NF,DK;SV,RC
- N O P
-#空行
-    
+NOP
 AD,R0,12
 WR,RC,DK
 JA,R9,255
-

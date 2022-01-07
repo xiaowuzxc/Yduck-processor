@@ -31,7 +31,7 @@ def 检查out文件():
 
 def 指令预处理():
 	总行数=len(data)#得到行数
-	行指针=0
+	行指针=0#清理行多余字符
 	while 行指针<总行数:#遍历list
 		inistr=data[行指针]#data的对应行存入inistr
 		inistr=inistr.replace(' ','')#去除此行所有空格
@@ -43,9 +43,12 @@ def 指令预处理():
 				inistr=inistr[:cntstr]#储存结束符前的数据
 				break#结束遍历
 			cntstr+=1#无事发生，下一个字符
-		if cntstr:#如果此行有有效内容
-			data[行指针]=inistr#存回data
-		else:#此行是空白
+		语法检查(待检查的行=inistr,待检查行数=行指针)
+		data[行指针]=inistr#存回data
+		行指针+=1
+	行指针=0#清理多余行
+	while 行指针<总行数:#遍历list
+		if len(data[行指针])==0:
 			data.pop(行指针)#删除行
 			行指针=行指针-1
 			总行数=len(data)#重置行数
@@ -59,43 +62,39 @@ def 指令预处理():
 		行指针+=1
 	out.close()
 
-def 语法检查():
-	总行数=len(data)#得到行数
-	行指针=0
-	while 行指针<总行数:#遍历list
-		inistr=data[行指针]#data的对应行存入inistr
-		ckstr=re.search(r'[^A-Z\d,;]',inistr)
+def 语法检查(待检查的行,待检查行数):
+	if len(待检查的行)>1:
+		ckstr=re.search(r'[^A-Z\d,;]',待检查的行)
 		if ckstr:
-			print("错误:out.txt 第",行指针+1,"行存在非法字符")
+			print("错误:out.txt 第",待检查行数+1,"行存在非法字符")
 		else:
 			pass
-		ckstr=re.match(r'NF|LD|SV|IN|SW|NOP',inistr)#检测开头是否匹配8b指令
+		ckstr=re.match(r'NF|LD|SV|IN|SW|NOP',待检查的行)#检测开头是否匹配8b指令
 		if ckstr:#8b/NOP指令
 			ckstr=re.match(r'((((NF|LD|SV|IN|SW),(ZE|DK|PC|R[0-9|A|B|C]))|NOP);(((NF|LD|SV|IN|SW),(ZE|DK|PC|R[0-9|A|B|C]))|NOP))|NOP'\
-			,inistr)
+			,待检查的行)
 			if ckstr:#匹配8b语法
 				pass
 			else:#不匹配
-				print("错误:out.txt 第",行指针+1,"行指令语法错误")
+				print("错误:out.txt 第",待检查行数+1,"行指令语法错误")
 		else:#16b指令
-			ckstr=re.match(r'WR|CR|LA|LO',inistr)#检测是否匹配16b CMD,RG1,RG2语法
+			ckstr=re.match(r'WR|CR|LA|LO',待检查的行)#检测是否匹配16b CMD,RG1,RG2语法
 			if ckstr:#16b指令CMD,RG1,RG2
-				ckstr=re.match(r'(WR|CR|LA|LO),(ZE|DK|PC|R[0-9|A|B|C]),(ZE|DK|PC|R[0-9|A|B|C])',inistr)
+				ckstr=re.match(r'(WR|CR|LA|LO),(ZE|DK|PC|R[0-9|A|B|C]),(ZE|DK|PC|R[0-9|A|B|C])',待检查的行)
 				if ckstr:
 					pass
 				else:
-					print("错误:out.txt 第",行指针+1,"行指令语法错误")
+					print("错误:out.txt 第",待检查行数+1,"行指令语法错误")
 			else:#16b指令CMD,RG,$H
-				ckstr=re.match(r'(AD|SB|JW|JA|LL|LR|TL),(ZE|DK|PC|R[0-9|A|B|C]),\d\d?\d?',inistr)
+				ckstr=re.match(r'(AD|SB|JW|JA|LL|LR|TL),(ZE|DK|PC|R[0-9|A|B|C]),\d\d?\d?',待检查的行)
 				if ckstr:
 					pass
 				else:
-					print("错误:out.txt 第",行指针+1,"行指令语法错误")
-				inistr=inistr[6:]#储存结束符前的数据
-				inistr=int(inistr)
-				if inistr<0 or inistr>255:#检查立即数溢出
-					print("错误:out.txt 第",行指针+1,"行立即数位宽错误")
-		行指针+=1#切换下一行
+					print("错误:out.txt 第",待检查行数+1,"行指令语法错误")
+				立即数=int(待检查的行[6:])#检查立即数溢出
+				if 立即数<0 or 立即数>255:
+					print("错误:out.txt 第",待检查行数+1,"行立即数位宽错误")
+
 
 def 执行汇编():
 	obj=open('./obj.txt','w+')#创建输出文件
@@ -127,6 +126,5 @@ with open('./asm.txt','r+',encoding='UTF-8') as f:#打开test.txt文件
 	data=f.readlines()#按行读取，生成list至data
 f.closed#关闭文件
 指令预处理()#预处理data，去除注释、多余行、空格，写入out.txt
-语法检查()#检查语法和立即数
 执行汇编()#二进制代码写入obj.txt
 print('结束汇编')
