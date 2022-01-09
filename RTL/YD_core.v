@@ -1,17 +1,19 @@
 module YD_core
 (
-	input				clk, //时钟
-	input				rst,  //同步复位，高电平有效
+	input		wire	clk, //时钟
+	input		wire	rst,  //同步复位，高电平有效
 	//ibus
-	output 	[15:0]	i_addr, //地址输入
-	input 	[15:0]	i_dout, //数据输出
+	output 	wire[15:0]	i_addr, //地址输入
+	input 	wire[15:0]	i_dout, //数据输出
 	//dbus
 	output	reg[15:0]	d_din, //数据输入
 	output 	reg[15:0]	d_addr, //地址输入
 	output	reg 		d_we, //高电平写使能
-	input 	[15:0]	d_dout //数据输出
+	input 	wire[15:0]	d_dout //数据输出
 );
 //寄存器定义
+reg rsr;//复位指示
+reg rst_r;
 reg jpc;//跳转指示
 reg dwi;//数据空间写指示
 reg dsw;//双发射1级指示
@@ -40,7 +42,7 @@ wire [15:0]dout0;
 wire [15:0]dout1;
 wire [15:0]DKD;//直接输出DK或写入值
 //内部参数定义
-localparam hze=16'h0;//发生跳转，填充流水线
+
 
 //指令操作码定义
 localparam NF=4'b0000;	//逻辑非	RG=~RG
@@ -70,18 +72,21 @@ localparam PCA=4'b1111;
 //跳转则填充一次流水线
 always @(*) begin
 	if(jpc)
-		idata=hze;
+		idata=16'h0;
 	else
 		idata=i_dout;
 end
 
 //指令打一拍
 always @(posedge clk) begin
-	if(rst)
+	if(rst_r)
 		idata_r <= 16'h0;
 	else
 		idata_r <= idata;
 end
+
+always @(posedge clk) rst_r <= rst;
+
 /*
 output 	[AW-1:0]	d_addr, //地址输入
 
@@ -353,9 +358,10 @@ end
 
 //内部数据寄存
 always @(posedge clk) begin
-	if(rst) begin
+	if(rst_r) begin
 		dwi <= 1'b0;
 		jpc <= 1'b0;
+		rsr <= 1'b0;
 		end 
 	else begin
 		if(idata[15:12]==JA || idata[15:12]==JW)
