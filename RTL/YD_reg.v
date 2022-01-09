@@ -197,4 +197,20 @@ always @(*) begin
 	else
 		DKD=DK;
 end
+
+/*------- 仅仿真 -------*/
+wire [15:0]R0W=RX[0];
+wire [15:0]R1W=RX[1];
+wire [15:0]R2W=RX[2];
+wire [15:0]R3W=RX[3];
+wire [15:0]R4W=RX[4];
+wire [15:0]R5W=RX[5];
+wire [15:0]R6W=RX[6];
+wire [15:0]R7W=RX[7];
+wire [15:0]R8W=RX[8];
+wire [15:0]R9W=RX[9];
+wire [15:0]RAW=RX[10];
+wire [15:0]RBW=RX[11];
+wire [15:0]RCW=RX[12];
+/*------- 仅仿真 -------*/
 endmodule
