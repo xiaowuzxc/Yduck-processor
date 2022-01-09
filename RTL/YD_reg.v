@@ -17,7 +17,8 @@ module YD_reg (
 	input wire [3:0]raddr1,
 	output reg [15:0]dout1,//寄存器读取，数据输出线，always@(*)只能给reg赋值
 //PC输出
-	output reg [15:0]PC//PC值会直接输出
+	output reg [15:0]PC,//PC值会直接输出
+	output reg [15:0]DKD//直接输出DK或写入值
 );
 //寄存器组定义
 reg [15:0]RX[12:0];
@@ -27,6 +28,8 @@ reg [3:0]raddr0_r;//读地址0打一拍
 reg [3:0]raddr1_r;//读地址1打一拍
 reg [3:0]waddr0_r;//写地址0打一拍
 reg [3:0]waddr1_r;//写地址1打一拍
+reg we0_r;//写使能0打一拍
+reg we1_r;//写使能1打一拍
 reg [15:0]din0_r;//写数据0打一拍
 reg [15:0]din1_r;//写数据1打一拍
 reg [15:0]dout0_r;//寄存器读取，数据输出线，always@(*)只能给reg赋值
@@ -99,6 +102,8 @@ if(rst) begin
 	waddr1_r <= 4'h0;
 	din0_r <= 16'h0;
 	din1_r <= 16'h0;
+	we0_r <= 1'b0;
+	we1_r <= 1'b0;
 	end 
 else begin
 	raddr0_r <= raddr0;//读地址0打一拍
@@ -107,80 +112,89 @@ else begin
 	waddr1_r <= waddr1;//写地址1打一拍
 	din0_r <= din0;//写数据0打一拍
 	din1_r <= din1;//写数据1打一拍
+	we0_r <= we0;
+	we1_r <= we1;
 	end
 end
 //读取寄存器
 always @(*) begin
 	case (raddr0_r)
-		ZEA:dout0_r=16'h0;
-		DKA:dout0_r=DK;
+		ZEA:dout0=16'h0;
+		DKA:
+			if ((raddr0_r==waddr0_r&&we0_r)||(raddr0_r==waddr1_r&&we1_r)) //同步写穿
+				if(raddr0_r==waddr0_r&&we0_r)
+					dout0=din0_r;
+				else if(raddr0_r==waddr1_r&&we1_r)
+					dout0=din1_r;
+				else
+					dout0=DK;
+			else
+				dout0=DK;
 		PCA:
-			if (((raddr0_r==waddr0_r&&we0)||(raddr0_r==waddr1_r&&we1))&&jpc) //同步写穿
-				if(raddr0_r==waddr0_r&&we0)
-					dout0_r=din0_r;
-				else if(raddr0_r==waddr1_r&&we1)
-					dout0_r=din1_r;
+			if (((raddr0_r==waddr0_r&&we0_r)||(raddr0_r==waddr1_r&&we1_r))&&jpc) //同步写穿
+				if(raddr0_r==waddr0_r&&we0_r)
+					dout0=din0_r;
+				else if(raddr0_r==waddr1_r&&we1_r)
+					dout0=din1_r;
 				else
-					dout0_r=PC;
+					dout0=PC;
 			else
-				dout0_r=PC;
+				dout0=PC;
 		default:
-			if ((raddr0_r==waddr0_r&&we0)||(raddr0_r==waddr1_r&&we1))//同步写穿
-				if(raddr0_r==waddr0_r&&we0)
-					dout0_r=din0_r;
-				else if(raddr0_r==waddr1_r&&we1)
-					dout0_r=din1_r;
+			if ((raddr0_r==waddr0_r&&we0_r)||(raddr0_r==waddr1_r&&we1_r))//同步写穿
+				if(raddr0_r==waddr0_r&&we0_r)
+					dout0=din0_r;
+				else if(raddr0_r==waddr1_r&&we1_r)
+					dout0=din1_r;
 				else
-					dout0_r=RX[raddr0_r-R0A];
+					dout0=RX[raddr0_r-R0A];
 			else
-				dout0_r=RX[raddr0_r-R0A];
+				dout0=RX[raddr0_r-R0A];
 		endcase
+
 	case (raddr1_r)
 		ZEA:dout1_r=16'h0;
-		DKA:dout1_r=DK;
+		DKA:
+			if ((raddr1_r==waddr0_r&&we0_r)||(raddr1_r==waddr1_r&&we1_r)) //同步写穿
+				if(raddr1_r==waddr0_r&&we0_r)
+					dout1=din0_r;
+				else if(raddr1_r==waddr1_r&&we1_r)
+					dout1=din1_r;
+				else
+					dout1=DK;
+			else
+				dout1=DK;
 		PCA:
-			if (((raddr1_r==waddr0_r&&we0)||(raddr1_r==waddr1_r&&we1))&&jpc) //同步写穿
-				if(raddr1_r==waddr0_r&&we0)
-					dout1_r=din0_r;
-				else if(raddr1_r==waddr1_r&&we1)
-					dout1_r=din1_r;
+			if (((raddr1_r==waddr0_r&&we0_r)||(raddr1_r==waddr1_r&&we1_r))&&jpc) //同步写穿
+				if(raddr1_r==waddr0_r&&we0_r)
+					dout1=din0_r;
+				else if(raddr1_r==waddr1_r&&we1_r)
+					dout1=din1_r;
 				else
-					dout1_r=PC;
+					dout1=PC;
 			else
-				dout1_r=PC;
+				dout1=PC;
 		default:
-			if ((raddr1_r==waddr0_r&&we0)||(raddr1_r==waddr1_r&&we1))//同步写穿
-				if(raddr1_r==waddr0_r&&we0)
-					dout1_r=din0_r;
-				else if(raddr1_r==waddr1_r&&we1)
-					dout1_r=din1_r;
+			if ((raddr1_r==waddr0_r&&we0_r)||(raddr1_r==waddr1_r&&we1_r))//同步写穿
+				if(raddr1_r==waddr0_r&&we0_r)
+					dout1=din0_r;
+				else if(raddr1_r==waddr1_r&&we1_r)
+					dout1=din1_r;
 				else
-					dout1_r=RX[raddr1_r-R0A];
+					dout1=RX[raddr1_r-R0A];
 			else
-				dout1_r=RX[raddr1_r-R0A];
+				dout1=RX[raddr1_r-R0A];
 		endcase
 end
 
-//DK异步写穿逻辑
+//直接输出DK
 always @(*) begin
-	if(raddr0==DKA)//读取DK
-		if(waddr0==DKA && we0)//如果同时在写DK
-			dout0=din0;//把写的内容接过来
-		else if(waddr1==DKA && we1)
-			dout0=din1;
-		else
-			dout0=dout0_r;
-	else//读的不是DK
-		dout0=dout0_r;
-	if(raddr1==DKA)
+	if(waddr0==DKA && we0 || waddr1==DKA && we1)//如果同时在写DK
 		if(waddr0==DKA && we0)
-			dout1=din0;
+			DKD=din0;
 		else if(waddr1==DKA && we1)
-			dout1=din1;
-		else
-			dout1=dout1_r;
+			DKD=din1;
 	else
-		dout1=dout1_r;
+		DKD=DK;
 end
-
 endmodule

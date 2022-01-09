@@ -12,8 +12,7 @@
 // -----------------------------------------------------------------------------
 module dbus
 #(
-	parameter DW = 16,
-	parameter AW = 16 
+	parameter RAM_AW = 7
 )(
 	input			clk, //时钟
 	input			rst,  //同步复位，高电平有效
@@ -24,7 +23,9 @@ module dbus
 	input wire [DW-1:0]	gpio_in,//输入端口
 	output wire [DW-1:0]gpio_out//输出端口
 );
-
+localparam BKAW=13;
+localparam DW = 16;
+localparam AW = 16;
 /*---------定义区块连线-----------*/
 //s0
 localparam s0_bk=0;//区块编号，s<num>_bk=<num>
@@ -86,8 +87,8 @@ end
 ram #(
 
 	.DW     		( 16 		),
-	.AW     		( 13 		),
-	.RAM_AW 		( 7  		))
+	.AW     		( BKAW		),
+	.RAM_AW 		( RAM_AW 	))
 u_ram(
 	//ports
 	.clk  		( clk  		),
@@ -100,7 +101,7 @@ u_ram(
 
 io #(
 	.DW 		( 16 		),
-	.AW 		( 13 		))
+	.AW 		( BKAW		))
 u_io(
 	//ports
 	.clk      		( clk      		),

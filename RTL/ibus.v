@@ -12,16 +12,17 @@
 // -----------------------------------------------------------------------------
 module ibus
 #(
-	parameter DW = 16,
-	parameter AW = 16,
-	parameter RAM_AW = 7
+
+	parameter ROM_AW = 7
 )(
 	input			clk, //时钟
-	input [AW-1:0]	addr, //地址输入
-	output wire [DW-1:0] dout //数据输出
+	input [15:0]	addr, //地址输入
+	output wire [15:0] dout //数据输出
     );
-    
-reg [DW-1:0] mem_r [(2**RAM_AW)-1:0];//内存定义
+localparam DW = 16;
+localparam AW = 16;
+
+reg [DW-1:0] mem_r [(2**ROM_AW)-1:0];//内存定义
 
 wire [DW-1:0] dout_pre;
 reg [AW-1:0] addr_r;//地址寄存器
@@ -34,7 +35,7 @@ end
 assign #0.1 dout = mem_r[addr_r];//读取
 
 initial begin
-    $readmemb("../../tools/asm/obj.txt",mem_r,0,(2**RAM_AW)-1);//可以被综合
+    $readmemb("../../tools/asm/obj.txt",mem_r,0,(2**ROM_AW)-1);//可以被综合
 end
 
 endmodule

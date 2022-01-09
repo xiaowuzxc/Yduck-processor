@@ -1,26 +1,23 @@
 module YD_core
-#(
-	parameter DW = 16,
-	parameter AW = 16 
-)(
+(
 	input				clk, //时钟
 	input				rst,  //同步复位，高电平有效
 	//ibus
-	output 	[AW-1:0]	i_addr, //地址输入
-	input 	[DW-1:0]	i_dout, //数据输出
+	output 	[15:0]	i_addr, //地址输入
+	input 	[15:0]	i_dout, //数据输出
 	//dbus
-	output	reg[DW-1:0]	d_din, //数据输入
-	output 	reg[AW-1:0]	d_addr, //地址输入
+	output	reg[15:0]	d_din, //数据输入
+	output 	reg[15:0]	d_addr, //地址输入
 	output	reg 		d_we, //高电平写使能
-	input 	[DW-1:0]	d_dout //数据输出
+	input 	[15:0]	d_dout //数据输出
 );
 //寄存器定义
 reg jpc;//跳转指示
 reg dwi;//数据空间写指示
 reg dsw;//双发射1级指示
 reg dsw_r;//双发射2级指示
-reg [DW-1:0]idata;//第一阶段指令
-reg [DW-1:0]idata_r;//指令寄存
+reg [15:0]idata;//第一阶段指令
+reg [15:0]idata_r;//指令寄存
 reg [15:0]din0;
 reg [3:0]waddr0;
 reg we0;
@@ -29,10 +26,19 @@ reg [3:0]waddr1;
 reg we1;
 reg [3:0]raddr0;
 reg [3:0]raddr1;
+reg [15:0]d_addr_d0;//指令解码阶段通道0，读/写数据空间地址
+reg [15:0]d_addr_d1;//指令解码阶段通道1，读/写数据空间地址
+reg [15:0]d_addr_z0;//指令执行阶段通道0，读/写数据空间地址
+reg [15:0]d_addr_z1;//指令执行阶段通道1，读/写数据空间地址
+reg [15:0]d_din_z0;//指令执行阶段通道0，写数据空间数据
+reg [15:0]d_din_z1;//指令执行阶段通道1，写数据空间数据
+reg d_we_z0;//指令执行阶段通道0，写数据空间使能
+reg d_we_z1;//指令执行阶段通道1，写数据空间使能
 
 //线网定义
 wire [15:0]dout0;
 wire [15:0]dout1;
+wire [15:0]DKD;//直接输出DK或写入值
 //内部参数定义
 localparam hze=16'h0;//发生跳转，填充流水线
 
@@ -86,85 +92,98 @@ output 	[AW-1:0]	d_addr, //地址输入
 	input wire [3:0]raddr1,
 	
 */
-//指令译码，生成读地址
+//指令译码0，生成读地址
 always @(*) begin
 	raddr0=4'h0;
-	raddr1=4'h0;
-	if(dwi) d_addr=16'hz;
+	d_addr_d0=16'h0;
 	case (idata[15:12])
-		NF:begin
+		NF:begin//RG=~RG
 			dsw=1'b1;//当前为8b指令
 			raddr0=idata[11:8];
 			end
-		LD:begin
+		LD:begin//RG=[DK]
 			dsw=1'b1;
-			raddr0=DKA;
-			if(dwi) 
-				d_addr=16'hz;//数据空间正在写
-
-			else
-				d_addr=dout0;//数据空间没有动作
+			d_addr_d0=DKD;//数据空间没有动作
 			end
-		SV:begin
+		SV:begin//[DK]=RG
 			dsw=1'b1;
 			raddr0=idata[11:8];
 			end
-		IN:begin
+		IN:begin//RG=RG+1
 			dsw=1'b1;
 			raddr0=idata[11:8];
 			end
-		SW:begin
+		SW:begin//RG={RG[7:0],RG[15:8]}
 			dsw=1'b1;
 			raddr0=idata[11:8];
 			end
-		WR:begin
+		WR:begin//RG2=RG1
 			dsw=1'b0;//当前为16b指令
 			raddr0=idata[11:8];
+			raddr1=idata[7:4];
 			end
-		CR:begin
+		CR:begin//DK=RG1>RG2?1:0
 			dsw=1'b0;
 			raddr0=idata[11:8];
 			raddr1=idata[7:4];
 			end
-		LA:begin
+		LA:begin//DK=RG1 & RG2
 			dsw=1'b0;
 			raddr0=idata[11:8];
 			raddr1=idata[7:4];
 			end
-		LO:begin
+		LO:begin//DK=RG1 | RG2
 			dsw=1'b0;
 			raddr0=idata[11:8];
 			raddr1=idata[7:4];
 			end
-		AD:begin
+		AD:begin//DK=DK+RG+$H
+			dsw=1'b0;
+			raddr0=idata[11:8];
+			raddr1=DKA;
+			end
+		SB:begin//DK=DK-RG-$H
+			dsw=1'b0;
+			raddr0=idata[11:8];
+			raddr1=DKA;
+			end
+		JW:begin//DK!=0?跳转到RG+$H:顺序
+			dsw=1'b0;
+			raddr0=idata[11:8];
+			raddr1=DKA;
+			end
+		JA:begin//跳转到RG+$H
 			dsw=1'b0;
 			raddr0=idata[11:8];
 			end
-		SB:begin
+		LL:begin//DK逻辑左移RG+$H次
 			dsw=1'b0;
 			raddr0=idata[11:8];
+			raddr1=DKA;
 			end
-		JW:begin
+		LR:begin//DK逻辑右移RG+$H次
 			dsw=1'b0;
 			raddr0=idata[11:8];
+			raddr1=DKA;
 			end
-		JA:begin
+		TL:begin//DK循环左RG=0/右RG!=0移1次
 			dsw=1'b0;
 			raddr0=idata[11:8];
-			end
-		LL:begin
-			dsw=1'b0;
-			raddr0=idata[11:8];
-			end
-		LR:begin
-			dsw=1'b0;
-			raddr0=idata[11:8];
-			end
-		TL:begin
-			dsw=1'b0;
-			raddr0=idata[11:8];
+			raddr1=DKA;
 			end
 	endcase
+//指令译码1，生成读地址
+	if(dsw) begin
+		raddr1=4'h0;
+		d_addr_d1=16'h0;
+		case (idata[7:4])
+			NF:raddr1=idata[3:0];
+			LD:d_addr_d1=DKD;
+			SV:raddr1=idata[3:0];
+			IN:raddr1=idata[3:0];
+			SW:raddr1=idata[3:0];
+		endcase
+		end
 end
 /*
 output 	[DW-1:0]	d_din, //数据输入
@@ -185,11 +204,14 @@ input [DW-1:0]	din, //数据输入
 
 	output reg [15:0]dout0,//寄存器读取，数据输出线，always@(*)只能给reg赋值
 */
-//取得操作数值，生成写地址
+//指令执行1，生成写地址数据
 always @(*) begin
-	d_din=16'h0;
-	if(~dwi) d_addr=16'h0;
-	d_we=1'b0;
+	d_din_z0=16'h0;
+	d_addr_z0=16'h0;
+	d_we_z0=1'b0;
+	d_din_z1=16'h0;
+	d_addr_z1=16'h0;
+	d_we_z1=1'b0;
 	din0=16'h0;
 	waddr0=4'h0;
 	we0=1'b0;
@@ -197,79 +219,136 @@ always @(*) begin
 	waddr1=4'h0;
 	we1=1'b0;
 	case (idata_r[15:12])
-		NF:begin
+		NF:begin//RG=~RG
 			dsw_r=1'b1;//当前为8b指令
-			raddr0=idata[11:8];
+			din0=~dout0;
+			waddr0=idata_r[11:8];
+			we0=1'b1;
 			end
-		LD:begin
+		LD:begin//RG=[DK]
 			dsw_r=1'b1;
-			raddr0=DKA;
-			if(dwi) 
-				d_addr=16'hz;//数据空间正在写
-
-			else
-				d_addr=dout0;//数据空间没有动作
+			din0=d_dout;
+			waddr0=idata_r[11:8];
+			we0=1'b1;
 			end
-		SV:begin
+		SV:begin//[DK]=RG
 			dsw_r=1'b1;
-			raddr0=idata[11:8];
+			d_din_z0=dout0;
+			d_addr_z0=DKD;
+			d_we_z0=1'b1;
 			end
-		IN:begin
+		IN:begin//RG=RG+1
 			dsw_r=1'b1;
-			raddr0=idata[11:8];
+			din0=dout0+1;
+			waddr0=idata_r[11:8];
+			we0=1'b1;
 			end
-		SW:begin
+		SW:begin//RG={RG[7:0],RG[15:8]}
 			dsw_r=1'b1;
-			raddr0=idata[11:8];
+			din0={dout0[7:0],dout0[15:8]};
+			waddr0=idata_r[11:8];
+			we0=1'b1;
 			end
-		WR:begin
+		WR:begin//RG2=RG1
 			dsw_r=1'b0;//当前为16b指令
-			raddr0=idata[11:8];
+			din0=dout0;
+			waddr0=idata_r[7:4];
+			we0=1'b1;
 			end
-		CR:begin
+		CR:begin//DK=RG1>RG2?1:0
 			dsw_r=1'b0;
-			raddr0=idata[11:8];
-			raddr1=idata[7:4];
+			din0=dout0>dout1?16'h1:16'h0;
+			waddr0=DKA;
+			we0=1'b1;
 			end
-		LA:begin
+		LA:begin//DK=RG1 & RG2
 			dsw_r=1'b0;
-			raddr0=idata[11:8];
-			raddr1=idata[7:4];
+			din0=dout0&dout1;
+			waddr0=DKA;
+			we0=1'b1;
 			end
-		LO:begin
+		LO:begin//DK=RG1 | RG2
 			dsw_r=1'b0;
-			raddr0=idata[11:8];
-			raddr1=idata[7:4];
+			din0=dout0|dout1;
+			waddr0=DKA;
+			we0=1'b1;
 			end
-		AD:begin
+		AD:begin//DK=DK+RG+$H
 			dsw_r=1'b0;
-			raddr0=idata[11:8];
+			din0=dout1+dout0+{8'h0,idata_r[7:0]};
+			waddr0=DKA;
+			we0=1'b1;
 			end
-		SB:begin
+		SB:begin//DK=DK-RG-$H
 			dsw_r=1'b0;
-			raddr0=idata[11:8];
+			din0=dout1-dout0-{8'h0,idata_r[7:0]};
+			waddr0=DKA;
+			we0=1'b1;
 			end
-		JW:begin
+		JW:begin//DK!=0?跳转到RG+$H:顺序
 			dsw_r=1'b0;
-			raddr0=idata[11:8];
+			din0=(dout1!=16'h0)?dout0+{8'h0,idata_r[7:0]}:16'h0;
+			waddr0=(dout1!=16'h0)?PCA:4'h0;
+			we0=(dout1!=16'h0)?1'b1:1'b0;
 			end
-		JA:begin
+		JA:begin//跳转到RG+$H
 			dsw_r=1'b0;
-			raddr0=idata[11:8];
+			din0=dout0+{8'h0,idata_r[7:0]};
+			waddr0=PCA;
+			we0=1'b1;
 			end
-		LL:begin
+		LL:begin//DK逻辑左移RG+$H次
 			dsw_r=1'b0;
-			raddr0=idata[11:8];
+			din0=dout1<<(dout0[3:0]+idata_r[3:0]);
+			waddr0=DKA;
+			we0=1'b1;
 			end
-		LR:begin
+		LR:begin//DK逻辑右移RG+$H次
 			dsw_r=1'b0;
-			raddr0=idata[11:8];
+			din0=dout1>>(dout0[3:0]+idata_r[3:0]);
+			waddr0=DKA;
+			we0=1'b1;
 			end
-		TL:begin
+		TL:begin//DK循环左RG=0/右RG!=0移1次
 			dsw_r=1'b0;
-			raddr0=idata[11:8];
+			if(dout0==16'h0)
+				din0={dout1[14:0],dout1[15]};
+			else
+				din0={dout1[0],dout1[15:1]};
+			waddr0=DKA;
+			we0=1'b1;
 			end
 	endcase
+//指令执行1，生成写地址数据
+	if(dsw_r) begin
+		case (idata[7:4])
+			NF:begin//RG=~RG
+				din1=~dout1;
+				waddr1=idata_r[3:0];
+				we1=1'b1;
+				end
+			LD:begin//RG=[DK]
+				din1=d_dout;
+				waddr1=idata_r[3:0];
+				we0=1'b1;
+				end
+			SV:begin//[DK]=RG
+				d_din_z1=dout1;
+				d_addr_z1=DKD;
+				d_we_z1=1'b1;
+				end
+			IN:begin//RG=RG+1
+				din1=dout1+1;
+				waddr1=idata_r[3:0];
+				we1=1'b1;
+				end
+			SW:begin//RG={RG[7:0],RG[15:8]}
+				din1={dout1[7:0],dout1[15:8]};
+				waddr1=idata_r[3:0];
+				we1=1'b1;
+				end
+		endcase
+	end
 end
 
 //内部数据寄存
@@ -281,11 +360,50 @@ always @(posedge clk) begin
 	else begin
 		if(idata[15:12]==JA || idata[15:12]==JW)
 			jpc <= 1'b1;
+		else
+			jpc <= 1'b0;
 		if(idata[15:12]==SV)
 			dwi <= 1'b1;
+		else
+			dwi <= 1'b0;
 		end
 end
 
+//数据总线仲裁
+/*
+	output	reg[15:0]	d_din, //数据输入
+	output 	reg[15:0]	d_addr, //地址输入
+	output	reg 		d_we, //高电平写使能
+
+reg [15:0]d_addr_d0;//指令解码阶段通道0，读/写数据空间地址
+reg [15:0]d_addr_d1;//指令解码阶段通道1，读/写数据空间地址
+reg [15:0]d_addr_z0;//指令执行阶段通道0，读/写数据空间地址
+reg [15:0]d_addr_z1;//指令执行阶段通道1，读/写数据空间地址
+reg [15:0]d_din_z0;//指令执行阶段通道0，写数据空间数据
+reg [15:0]d_din_z1;//指令执行阶段通道1，写数据空间数据
+reg d_we_z0;//指令执行阶段通道0，写数据空间使能
+reg d_we_z1;//指令执行阶段通道1，写数据空间使能
+*/
+always @(*) begin
+	if(rst) begin
+		d_din = 16'h0;
+		d_addr = 16'h0;
+		d_we = 1'b0;
+		end
+	else begin
+		if(dwi) begin
+			d_addr = d_addr_z1 | d_addr_z0;
+			d_din = d_din_z1 | d_din_z0;
+			d_we = d_we_z1 | d_we_z0;
+			end
+		else begin
+			d_addr = d_addr_d0 | d_addr_d1;
+			d_we =1'b0;
+			end
+		end
+end
+
+wire [15:0]PC;
 assign i_addr=PC;//地址指示
 YD_reg u_YD_reg
 	(
@@ -302,6 +420,7 @@ YD_reg u_YD_reg
 		.dout0  (dout0),
 		.raddr1 (raddr1),
 		.dout1  (dout1),
-		.PC     (PC)
+		.PC     (PC),
+		.DKD	(DKD)
 	);
 endmodule
