@@ -12,9 +12,8 @@ module YD_core
 	input 	wire[15:0]	d_dout //数据输出
 );
 //寄存器定义
-reg rsr;//复位指示
-reg rst_r;
-reg jpc;//跳转指示
+reg rst_r;//复位打一拍
+reg jpc,jpc_r;//跳转指示，打一拍
 reg dwi;//数据空间写指示
 reg dsw;//双发射1级指示
 reg dsw_r;//双发射2级指示
@@ -71,7 +70,7 @@ localparam PCA=4'b1111;
 
 //跳转则填充一次流水线
 always @(*) begin
-	if(jpc)
+	if(jpc|jpc_r)
 		idata=16'h0;
 	else
 		idata=i_dout;
@@ -361,9 +360,10 @@ always @(posedge clk) begin
 	if(rst_r) begin
 		dwi <= 1'b0;
 		jpc <= 1'b0;
-		rsr <= 1'b0;
+		jpc_r <= 1'b0;
 		end 
 	else begin
+		jpc_r <= jpc;
 		if(idata[15:12]==JA || idata[15:12]==JW)
 			jpc <= 1'b1;
 		else
