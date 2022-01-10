@@ -36,7 +36,7 @@ initial begin
 	gpio_in=16'hFA1C;
 
 	
-	#20
+	#50
 	$display("|-----------Yduck pass------------|");
 	$finish;
 end
