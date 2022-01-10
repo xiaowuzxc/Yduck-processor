@@ -1,0 +1,8 @@
+./tb_soc.sv
+./../YD_reg.v
+./../YD_core.v
+./../SoC.v
+./../ram.v
+./../io.v
+./../ibus.v
+./../dbus.v
