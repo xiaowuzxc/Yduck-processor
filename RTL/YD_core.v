@@ -315,10 +315,16 @@ always @(*) begin
 			end
 		TL:begin//DK循环左RG=0/右RG!=0移1次
 			dsw_r=1'b0;
-			if(dout0==16'h0)
-				din0={dout1[14:0],dout1[15]};
+			if(idata_r[0])
+				if(idata_r[1]==1'b0)
+					din0={dout1[14:0],dout1[15]};
+				else
+					din0={dout1[0],dout1[15:1]};
 			else
-				din0={dout1[0],dout1[15:1]};
+				if(dout0==16'h0)
+					din0={dout1[14:0],dout1[15]};
+				else
+					din0={dout1[0],dout1[15:1]};
 			waddr0=DKA;
 			we0=1'b1;
 			end
