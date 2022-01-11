@@ -1,7 +1,9 @@
 #python3脚本，大黄鸭汇编器
 
 #导入库
-import os,re
+#import os,re
+from os import remove
+from re import search,match
 #定义指令字典
 YDcmd={'NF':'0000','LD':'0001','SV':'0010','IN':'0011','SW':'0100','WR':'0101','CR':'0110',\
 'LA':'0111','LO':'1000','AD':'1001','SB':'1010','JW':'1011','JA':'1100','LL':'1101','LR':'1110','TL':'1111'}
@@ -18,7 +20,7 @@ def 检查out文件():
 	except IOError:
 		print ("无预处理文件")
 	else:
-		os.remove('./out.txt')
+		remove('./out.txt')
 		print ("重新生成预处理文件")
 	try:
 		f=open('./obj.txt')
@@ -26,7 +28,7 @@ def 检查out文件():
 	except IOError:
 		print ("无输出文件")
 	else:
-		os.remove('./obj.txt')
+		remove('./obj.txt')
 		print ("重新生成输出文件")
 
 def 指令预处理():
@@ -64,29 +66,29 @@ def 指令预处理():
 
 def 语法检查(待检查的行,待检查行数):
 	if len(待检查的行)>1:
-		ckstr=re.search(r'[^A-Z\d,;]',待检查的行)
+		ckstr=search(r'[^A-Z\d,;]',待检查的行)
 		if ckstr:
 			print("错误:out.txt 第",待检查行数+1,"行存在非法字符")
 		else:
 			pass
-		ckstr=re.match(r'NF|LD|SV|IN|SW|NOP',待检查的行)#检测开头是否匹配8b指令
+		ckstr=match(r'NF|LD|SV|IN|SW|NOP',待检查的行)#检测开头是否匹配8b指令
 		if ckstr:#8b/NOP指令
-			ckstr=re.match(r'((((NF|LD|SV|IN|SW),(ZE|DK|PC|R[0-9|A|B|C]))|NOP);(((NF|LD|SV|IN|SW),(ZE|DK|PC|R[0-9|A|B|C]))|NOP))|NOP'\
+			ckstr=match(r'((((NF|LD|SV|IN|SW),(ZE|DK|PC|R[0-9|A|B|C]))|NOP);(((NF|LD|SV|IN|SW),(ZE|DK|PC|R[0-9|A|B|C]))|NOP))|NOP'\
 			,待检查的行)
 			if ckstr:#匹配8b语法
 				pass
 			else:#不匹配
 				print("错误:out.txt 第",待检查行数+1,"行指令语法错误")
 		else:#16b指令
-			ckstr=re.match(r'WR|CR|LA|LO',待检查的行)#检测是否匹配16b CMD,RG1,RG2语法
+			ckstr=match(r'WR|CR|LA|LO',待检查的行)#检测是否匹配16b CMD,RG1,RG2语法
 			if ckstr:#16b指令CMD,RG1,RG2
-				ckstr=re.match(r'(WR|CR|LA|LO),(ZE|DK|PC|R[0-9|A|B|C]),(ZE|DK|PC|R[0-9|A|B|C])',待检查的行)
+				ckstr=match(r'(WR|CR|LA|LO),(ZE|DK|PC|R[0-9|A|B|C]),(ZE|DK|PC|R[0-9|A|B|C])',待检查的行)
 				if ckstr:
 					pass
 				else:
 					print("错误:out.txt 第",待检查行数+1,"行指令语法错误")
 			else:#16b指令CMD,RG,$H
-				ckstr=re.match(r'(AD|SB|JW|JA|LL|LR|TL),(ZE|DK|PC|R[0-9|A|B|C]),\d\d?\d?',待检查的行)
+				ckstr=match(r'(AD|SB|JW|JA|LL|LR|TL),(ZE|DK|PC|R[0-9|A|B|C]),\d\d?\d?',待检查的行)
 				if ckstr:
 					pass
 				else:
@@ -99,18 +101,18 @@ def 语法检查(待检查的行,待检查行数):
 def 执行汇编():
 	obj=open('./obj.txt','w+')#创建输出文件
 	for strdata in data:
-		ckstr=re.search(r'NF|LD|SV|IN|SW|NOP',strdata)#检测是否匹配8b/NOP指令
+		ckstr=search(r'NF|LD|SV|IN|SW|NOP',strdata)#检测是否匹配8b/NOP指令
 		if ckstr:#8b/NOP指令
-			if re.match(r'NOP',strdata) and len(strdata) < 4:#只有NOP
+			if match(r'NOP',strdata) and len(strdata) < 4:#只有NOP
 				objdata=YDwcm['NOP']+YDwcm['NOP']#一个周期空指令
 			else:#CMD,RG;XX
 				objdata=YDcmd[strdata[0:2]]+YDreg[strdata[3:5]]#第一个8b指令输入
-				if re.match(r'NOP',strdata[6:]):#CMD,RG;NOP
+				if match(r'NOP',strdata[6:]):#CMD,RG;NOP
 					objdata=objdata+YDwcm['NOP']
 				else:#CMD,RG;CMD,RG
 					objdata=objdata+YDcmd[strdata[6:8]]+YDreg[strdata[9:]]
 		else:#16b指令
-			if re.match(r'WR|CR|LA|LO',strdata):#16b指令CMD,RG1,RG2
+			if match(r'WR|CR|LA|LO',strdata):#16b指令CMD,RG1,RG2
 				objdata=YDcmd[strdata[0:2]]+YDreg[strdata[3:5]]+YDreg[strdata[6:8]]+'0000'
 			else:#16b指令CMD,RG,$H
 				objdata=YDcmd[strdata[0:2]]+YDreg[strdata[3:5]]+"{:b}".format(int(strdata[6:])).zfill(8)
