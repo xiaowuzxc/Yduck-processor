@@ -55,6 +55,11 @@ def 指令预处理():
 			行指针=行指针-1
 			总行数=len(data)#重置行数
 		行指针+=1#切换下一行
+	行指针=0#在SV-LD指令中间插入NOP
+	while 行指针<(总行数-1):#查找SV-LD
+		if(search(r'SV',data[行指针]) and search(r'LD',data[行指针+1])):
+			data.insert(行指针+1,'NOP')
+		行指针+=1#切换下一行
 	行指针=0
 	out=open('./out.txt','w+')#创建中间文件，写入经过预处理的指令
 	总行数=len(data)
@@ -68,7 +73,7 @@ def 语法检查(待检查的行,待检查行数):
 	if len(待检查的行)>1:
 		ckstr=search(r'[^A-Z\d,;]',待检查的行)
 		if ckstr:
-			print("错误:out.txt 第",待检查行数+1,"行存在非法字符")
+			print("错误: 第",待检查行数+1,"行存在非法字符")
 		else:
 			pass
 		ckstr=match(r'NF|LD|SV|IN|SW|NOP',待检查的行)#检测开头是否匹配8b指令
@@ -76,9 +81,10 @@ def 语法检查(待检查的行,待检查行数):
 			ckstr=match(r'((((NF|LD|SV|IN|SW),(ZE|DK|PC|R[0-9|A|B|C]))|NOP);(((NF|LD|SV|IN|SW),(ZE|DK|PC|R[0-9|A|B|C]))|NOP))|NOP'\
 			,待检查的行)
 			if ckstr:#匹配8b语法
-				pass
+				if(待检查的行[3:5]==待检查的行[9:11] and 待检查的行[0:3]!='NOP'):#检查并行指令寄存器冲突
+					print("警告: 第",待检查行数+1,"行存在寄存器冲突")
 			else:#不匹配
-				print("错误:out.txt 第",待检查行数+1,"行指令语法错误")
+				print("错误: 第",待检查行数+1,"行指令语法错误")
 		else:#16b指令
 			ckstr=match(r'WR|CR|LA|LO',待检查的行)#检测是否匹配16b CMD,RG1,RG2语法
 			if ckstr:#16b指令CMD,RG1,RG2
@@ -86,16 +92,16 @@ def 语法检查(待检查的行,待检查行数):
 				if ckstr:
 					pass
 				else:
-					print("错误:out.txt 第",待检查行数+1,"行指令语法错误")
+					print("错误: 第",待检查行数+1,"行指令语法错误")
 			else:#16b指令CMD,RG,$H
 				ckstr=match(r'(AD|SB|JW|JA|LL|LR|TL),(ZE|DK|PC|R[0-9|A|B|C]),\d\d?\d?',待检查的行)
 				if ckstr:
 					pass
 				else:
-					print("错误:out.txt 第",待检查行数+1,"行指令语法错误")
+					print("错误: 第",待检查行数+1,"行指令语法错误")
 				立即数=int(待检查的行[6:])#检查立即数溢出
 				if 立即数<0 or 立即数>255:
-					print("错误:out.txt 第",待检查行数+1,"行立即数位宽错误")
+					print("错误: 第",待检查行数+1,"行立即数位宽错误")
 
 
 def 执行汇编():
