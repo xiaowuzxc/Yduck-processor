@@ -2,7 +2,6 @@
 
 ### 简介
 本项目将从零开始，设计一套单核16位处理器。为此，我将自己设计一套全新的计算机指令集，代号“大黄鸭”；根据大黄鸭指令集，设计处理器内核，实现指令集的所有功能；为处理器布置必要的外设，如IO口；设计汇编器，让程序编写变得更友好。  
-![大黄鸭SoC结构](pic/png/soc.png)
 
 #### 本项目包含以下内容：  
 **1. 大黄鸭指令集设计**  
@@ -27,9 +26,10 @@
 
 #### 项目文档
 [大黄鸭指令集](https://gitee.com/xiaowuzxc/Yduck-processor/blob/master/doc/%E5%A4%A7%E9%BB%84%E9%B8%AD%E6%8C%87%E4%BB%A4%E9%9B%86.md)  
+[系统结构](https://gitee.com/xiaowuzxc/Yduck-processor/blob/master/doc/%E7%B3%BB%E7%BB%9F%E7%BB%93%E6%9E%84.md)  
 [大黄鸭汇编器](https://gitee.com/xiaowuzxc/Yduck-processor/blob/master/doc/%E5%A4%A7%E9%BB%84%E9%B8%AD%E6%B1%87%E7%BC%96%E5%99%A8.md)  
 [存储单元特性](https://gitee.com/xiaowuzxc/Yduck-processor/blob/master/doc/%E5%AD%98%E5%82%A8%E5%8D%95%E5%85%83%E7%89%B9%E6%80%A7.md)  
-[系统结构](https://gitee.com/xiaowuzxc/Yduck-processor/blob/master/doc/%E7%B3%BB%E7%BB%9F%E7%BB%93%E6%9E%84.md)  
+
 
 #### 开发工具
 正所谓：工欲善其事，必先利其器。  
@@ -44,12 +44,12 @@
 iverilog+gtkwave同时支持Windows和Linux，并且提供了子模块仿真。  
 vcs+verdi仅支持Linux，并且仅提供了SoC仿真脚本。  
 请更具喜好和需求选择。  
-1. iverilog
+1. iverilog  
 请进入`RTL/tb_iverilog`目录。  
-- windows
+- windows  
 如果未安装iverilog，请[安装](http://bleyer.org/icarus/)  
 双击make.bat，根据提示执行不同目标。  
-- linux
+- linux  
 如果未安装iverilog，请在终端输入`sudo apt install iverilog`  
 打开终端，输入`make`会显示不同目标。  
 根据提示，输入`make <cmd>`执行对于目标。  
