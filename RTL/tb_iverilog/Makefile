@@ -15,24 +15,28 @@ list:
 	@echo It is a UserGuide.
 	@echo Must have iverilog and gtkwave
 	@echo ------------------------------
-	@echo shell input: make [cmd] 
+	@echo input : make [cmd] 
 	@echo to choice what you want.
 	@echo ------------------------------
 	@echo Such as:make 1
-	@echo You can sim the D bus 
+	@echo You can sim D bus 
 	@echo ------------------------------
 	@echo [cmd]: information
-	@echo s0: sim Soc
-	@echo s1: sim D bus
-	@echo s2: sim I bus
-	@echo s3: sim interal regs
-	@echo clean: clean tb file
+	@echo 0: sim Soc
+	@echo 1: sim D bus
+	@echo 2: sim I bus
+	@echo 3: sim interal regs
+	@echo c: clean tb file
 	@echo ------------------------------
 #-------------------------------------------------------------------------------------------------------
-s0: iver0 show
-s1: iver1 show
-s2: iver2 show
-s3: iver3 show
+.PHONY:0
+0: iver0 show
+.PHONY:1
+1: iver1 show
+.PHONY:2
+2: iver2 show
+.PHONY:3
+3: iver3 show
 #-------------------------------------------------------------------------------------------------------
 iver0:
 	iverilog $(v_ver) -o $(tb_obj) -y $(v_path) $(tb_file_0)
@@ -47,7 +51,7 @@ show:
 	vvp -n $(tb_obj) -lxt2
 	gtkwave $(tb_obj).lxt
 #-------------------------------------------------------------------------------------------------------
-.PHONY : clean
-clean  :
+.PHONY : c
+c  :
 	 rm  -rf  $(tb_obj) *.lxt
 #-------------------------------------------------------------------------------------------------------
