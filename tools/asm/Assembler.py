@@ -55,11 +55,6 @@ def 指令预处理():
 			行指针=行指针-1
 			总行数=len(data)#重置行数
 		行指针+=1#切换下一行
-	行指针=0#在SV-LD指令中间插入NOP
-	while 行指针<(总行数-1):#查找SV-LD
-		if(search(r'SV',data[行指针]) and search(r'LD',data[行指针+1])):
-			data.insert(行指针+1,'NOP')
-		行指针+=1#切换下一行
 	行指针=0
 	out=open('./out.txt','w+')#创建中间文件，写入经过预处理的指令
 	总行数=len(data)

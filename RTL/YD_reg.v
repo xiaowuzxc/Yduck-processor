@@ -2,6 +2,7 @@ module YD_reg (
 	input wire clk,  //时钟
 	input wire rst,  //高电平同步复位
 	input wire jpc,	//流水线气泡，高电平可写PC
+	input wire dsv, //数据总线访问指示
 //输入口0
 	input wire [15:0]din0,
 	input wire [3:0]waddr0,
@@ -61,7 +62,7 @@ if(rst) begin//寄存器复位
 	RX[12] <= 16'h0;
 	end 
 else begin
-	if(~jpc)//不跳转
+	if(~jpc && ~dsv)//不跳转
 		PC <= PC+16'h1;
 	if(we0&&we1&&(waddr0==waddr1)) begin//写地址冲突，优先写端口0
 		case(waddr0)

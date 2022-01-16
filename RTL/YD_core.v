@@ -15,7 +15,8 @@ module YD_core
 reg rst_r;//复位打一拍
 reg jpc,jpc_r;//跳转指示，打一拍
 reg dwi;//数据空间写指示
-reg dsv;//访存指令指示
+reg dsv_0;
+reg dsv_1;
 reg dsw;//双发射1级指示
 reg dsw_r;//双发射2级指示
 reg [15:0]idata;//第一阶段指令
@@ -71,7 +72,7 @@ localparam PCA=4'b1111;
 
 //跳转则填充一次流水线
 always @(*) begin
-	if(jpc|jpc_r)
+	if(jpc|jpc_r|dwi)
 		idata=16'h0;
 	else
 		idata=i_dout;
@@ -91,7 +92,8 @@ always @(posedge clk) rst_r <= rst;//复位信号打一拍
 always @(*) begin
 	raddr0=4'h0;
 	d_addr_d0=16'h0;
-	dsv=1'b0;
+	dsv_0=1'b0;
+	dsv_1=1'b0;
 	case (idata[15:12])
 		NF:begin//RG=~RG
 			dsw=1'b1;//当前为8b指令
@@ -104,7 +106,7 @@ always @(*) begin
 		SV:begin//[DK]=RG
 			dsw=1'b1;
 			raddr0=idata[11:8];
-			dsv=1'b1;//数据写指示
+			dsv_0=1'b1;//数据写指示
 			end
 		IN:begin//RG=RG+1
 			dsw=1'b1;
@@ -176,7 +178,7 @@ always @(*) begin
 		case (idata[7:4])
 			NF:raddr1=idata[3:0];
 			LD:d_addr_d1=DKD;
-			SV: begin raddr1=idata[3:0]; dsv=1'b1; end//数据写指示
+			SV: begin raddr1=idata[3:0]; dsv_1=1'b1; end//数据写指示
 			IN:raddr1=idata[3:0];
 			SW:raddr1=idata[3:0];
 		endcase
@@ -383,6 +385,7 @@ YD_reg u_YD_reg
 		.clk    (clk),
 		.rst    (rst),
 		.jpc    (jpc),
+		.dsv	(dsv_0 | dsv_1),
 		.din0   (din0),
 		.waddr0 (waddr0),
 		.we0    (we0),
