@@ -15,6 +15,7 @@ module YD_core
 reg rst_r;//复位打一拍
 reg jpc,jpc_r;//跳转指示，打一拍
 reg dwi;//数据空间写指示
+reg dsv;//访存指令指示
 reg dsw;//双发射1级指示
 reg dsw_r;//双发射2级指示
 reg [15:0]idata;//第一阶段指令
@@ -84,22 +85,13 @@ always @(posedge clk) begin
 		idata_r <= idata;
 end
 
-always @(posedge clk) rst_r <= rst;
+always @(posedge clk) rst_r <= rst;//复位信号打一拍
 
-/*
-output 	[AW-1:0]	d_addr, //地址输入
-
-//输出口0
-	input wire [3:0]raddr0,
-	
-//输出口1
-	input wire [3:0]raddr1,
-	
-*/
 //指令译码0，生成读地址
 always @(*) begin
 	raddr0=4'h0;
 	d_addr_d0=16'h0;
+	dsv=1'b0;
 	case (idata[15:12])
 		NF:begin//RG=~RG
 			dsw=1'b1;//当前为8b指令
@@ -112,6 +104,7 @@ always @(*) begin
 		SV:begin//[DK]=RG
 			dsw=1'b1;
 			raddr0=idata[11:8];
+			dsv=1'b1;//数据写指示
 			end
 		IN:begin//RG=RG+1
 			dsw=1'b1;
@@ -183,31 +176,13 @@ always @(*) begin
 		case (idata[7:4])
 			NF:raddr1=idata[3:0];
 			LD:d_addr_d1=DKD;
-			SV:raddr1=idata[3:0];
+			SV: begin raddr1=idata[3:0]; dsv=1'b1; end//数据写指示
 			IN:raddr1=idata[3:0];
 			SW:raddr1=idata[3:0];
 		endcase
 		end
 end
-/*
-output 	[DW-1:0]	d_din, //数据输入
-output 	[AW-1:0]	d_addr, //地址输入
-output				d_we, //高电平写使能
-input [DW-1:0]	din, //数据输入
 
-//输入口0
-	input wire [15:0]din0,
-	input wire [3:0]waddr0,
-	input wire we0,
-
-	output reg [15:0]dout1,//寄存器读取，数据输出线，always@(*)只能给reg赋值
-//输入口1
-	input wire [15:0]din1,
-	input wire [3:0]waddr1,
-	input wire we1,
-
-	output reg [15:0]dout0,//寄存器读取，数据输出线，always@(*)只能给reg赋值
-*/
 //指令执行1，生成写地址数据
 always @(*) begin
 	d_din_z0=16'h0;
@@ -374,7 +349,7 @@ always @(posedge clk) begin
 			jpc <= 1'b1;
 		else
 			jpc <= 1'b0;
-		if(idata[15:12]==SV)
+		if((idata[15:12]==SV || idata[7:4]==SV) && dsw)
 			dwi <= 1'b1;
 		else
 			dwi <= 1'b0;
@@ -382,20 +357,6 @@ always @(posedge clk) begin
 end
 
 //数据总线仲裁
-/*
-	output	reg[15:0]	d_din, //数据输入
-	output 	reg[15:0]	d_addr, //地址输入
-	output	reg 		d_we, //高电平写使能
-
-reg [15:0]d_addr_d0;//指令解码阶段通道0，读/写数据空间地址
-reg [15:0]d_addr_d1;//指令解码阶段通道1，读/写数据空间地址
-reg [15:0]d_addr_z0;//指令执行阶段通道0，读/写数据空间地址
-reg [15:0]d_addr_z1;//指令执行阶段通道1，读/写数据空间地址
-reg [15:0]d_din_z0;//指令执行阶段通道0，写数据空间数据
-reg [15:0]d_din_z1;//指令执行阶段通道1，写数据空间数据
-reg d_we_z0;//指令执行阶段通道0，写数据空间使能
-reg d_we_z1;//指令执行阶段通道1，写数据空间使能
-*/
 always @(*) begin
 	if(rst) begin
 		d_din = 16'h0;
