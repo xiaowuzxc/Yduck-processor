@@ -23,18 +23,18 @@ module dbus
 	input wire [15:0]	gpio_in,//输入端口
 	output wire [15:0]gpio_out//输出端口
 );
-localparam BKAW=13;
+localparam BKAW=12;
 localparam DW = 16;
 localparam AW = 16;
 /*---------定义区块连线-----------*/
-//s0
-localparam s0_bk=3'b000;//区块编号，s<num>_bk=<num>
+//s0,addr=000x xxxx xxxx xxxx
+localparam s0_bk=4'h0;//区块编号：s<num>_bk=4'h<num>
 wire [DW-1:0]s0_dout;//从->主数据通路
 reg  [DW-1:0]s0_din;//主->从数据通路
 reg  [AW-4:0]s0_addr;//地址通路
 reg  s0_we;//高电平写使能
-//s1
-localparam s1_bk=3'b001;
+//s1.addr=001x xxxx xxxx xxxx
+localparam s1_bk=4'h1;
 wire [DW-1:0]s1_dout;
 reg  [DW-1:0]s1_din;
 reg  [AW-4:0]s1_addr;
@@ -67,12 +67,12 @@ end
 /*---------主->从数据通路-----------*/
 
 /*---------从->主数据通路-----------*/
-reg [2:0]bkr;//区块选择寄存器
+reg [3:0]bkr;//区块选择寄存器
 always @(posedge clk ) begin
 	if(rst)
-		bkr<=3'b0;
+		bkr<=4'h0;
 	else
-		bkr <= addr[AW-1:AW-3];
+		bkr <= addr[AW-1:AW-4];
 end
 always @(*) begin
 	case(bkr)

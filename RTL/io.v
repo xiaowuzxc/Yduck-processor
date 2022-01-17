@@ -1,7 +1,7 @@
 module io
 #(
 	parameter DW = 16,
-	parameter AW = 13 
+	parameter AW = 12 
 )(
 	input			clk, //时钟
 	input 			rst,  //同步复位，高电平有效
@@ -13,8 +13,8 @@ module io
 	output wire [DW-1:0]gpio_out//输出端口
 );
 
-localparam GPI_A = 13'h00;
-localparam GPO_A = 13'h01;
+localparam GPI_A = 12'h00;
+localparam GPO_A = 12'h01;
 reg [DW-1:0]gpio_in_reg;
 reg [DW-1:0]gpio_out_reg;
 always @(posedge clk) begin
@@ -38,7 +38,6 @@ else
 			GPI_A: #0.1 dout <= gpio_in_reg;
 			default: ;
 		endcase
-
 end
 
 endmodule
