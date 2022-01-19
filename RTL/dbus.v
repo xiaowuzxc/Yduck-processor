@@ -21,45 +21,60 @@ module dbus
 	input			we, //高电平写使能
 	output reg [15:0]	dout, //数据输出
 	input wire [15:0]	gpio_in,//输入端口
-	output wire [15:0]gpio_out//输出端口
+	output wire [15:0]gpio_out,//输出端口
+	output reg T0_PWM_P,//T0_PWM_P
+	output reg T0_PWM_N,//T0_PWM_N
+	output reg T1_PWM_P,//T1_PWM_P
+	output reg T1_PWM_N//T1_PWM_N
 );
 localparam BKAW=12;
 localparam DW = 16;
 localparam AW = 16;
 /*---------定义区块连线-----------*/
-//s0,addr=000x xxxx xxxx xxxx
+//s0,addr=0000 xxxx xxxx xxxx
 localparam s0_bk=4'h0;//区块编号：s<num>_bk=4'h<num>
 wire [DW-1:0]s0_dout;//从->主数据通路
 reg  [DW-1:0]s0_din;//主->从数据通路
-reg  [AW-4:0]s0_addr;//地址通路
+reg  [AW-5:0]s0_addr;//地址通路
 reg  s0_we;//高电平写使能
-//s1.addr=001x xxxx xxxx xxxx
+//s1.addr=0001 xxxx xxxx xxxx
 localparam s1_bk=4'h1;
 wire [DW-1:0]s1_dout;
 reg  [DW-1:0]s1_din;
-reg  [AW-4:0]s1_addr;
+reg  [AW-5:0]s1_addr;
 reg  s1_we;
+//s2.addr=0010 xxxx xxxx xxxx
+localparam s2_bk=4'h2;
+wire [DW-1:0]s2_dout;
+reg  [DW-1:0]s2_din;
+reg  [AW-5:0]s2_addr;
+reg  s2_we;
 /*---------定义区块连线-----------*/
 
 /*---------主->从数据通路-----------*/
 reg [DW-1:0]dinz;//空闲通路
-reg [AW-4:0]addrz;//空闲通路
+reg [AW-5:0]addrz;//空闲通路
 reg wez;//空闲通路
 always @(*) begin
-	case(addr[AW-1:AW-3])
+	case(addr[AW-1:AW-4])
 		s0_bk:begin
 			s0_din=din;//主->从数据通路
-			s0_addr=addr[AW-4:0];//地址通路
+			s0_addr=addr[AW-5:0];//地址通路
 			s0_we=we;//高电平写使能
 			end
 		s1_bk:begin
 			s1_din=din;
-			s1_addr=addr[AW-4:0];
+			s1_addr=addr[AW-5:0];
 			s1_we=we;
+			end
+		s2_bk:begin
+			s2_din=din;
+			s2_addr=addr[AW-5:0];
+			s2_we=we;
 			end
 		default:begin
 			dinz=din;
-			addrz=addr[AW-4:0];
+			addrz=addr[AW-5:0];
 			wez=we;
 			end
 	endcase
@@ -78,6 +93,7 @@ always @(*) begin
 	case(bkr)
 		s0_bk:dout=s0_dout;
 		s1_bk:dout=s1_dout;
+		s1_bk:dout=s2_dout;
 		default:dout=32'h0;
 	endcase
 end
@@ -114,7 +130,20 @@ u_io(
 	.gpio_out 		( gpio_out 		)
 );
 
-
-
+tpwm #(
+	.DW 		( 16 		),
+	.AW 		( BKAW		))
+u_tpwm(
+	.clk      		( clk      		),
+	.rst      		( rst      		),
+	.din      		( s2_din      		),
+	.addr     		( s2_addr     		),
+	.we       		( s2_we       		),
+	.dout     		( s2_dout     		),
+	.T0_PWM_P(T0_PWM_P),
+	.T0_PWM_N(T0_PWM_N),
+	.T1_PWM_P(T1_PWM_P),
+	.T1_PWM_N(T1_PWM_N)
+);
 
 endmodule

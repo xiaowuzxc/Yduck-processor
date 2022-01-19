@@ -15,6 +15,7 @@
 - 8位指令双发射
 - 带有数据总线
 - IO寄存器映射  
+- 通用IO，定时PWM外设  
 
 **3. 大黄鸭汇编器脚本**  
 - 将大黄鸭汇编程序转换为处理器可执行的二进制代码
@@ -40,22 +41,23 @@
 - 所有文本采用UTF-8编码，具备良好的多语言支持和跨平台特性。  
 
 #### 目录结构
+```
 ├─doc  相关文档   
 ├─pic  图片仓库    
 ├─RTL  
 │  │  dbus.v  数据总线  
 │  │  ibus.v  指令总线  
-│  │  io.v  io外设  
+│  │  io.v   io外设  
 │  │  ram.v  ram外设  
 │  │  SoC.v  SoC顶层  
-│  │  tpwm.v  tpwm外设  
+│  │  tpwm.v tpwm外设  
 │  │  YD_core.v  大黄鸭内核  
-│  │  YD_reg.v  寄存器组  
+│  │  YD_reg.v   寄存器组  
 │  ├─tb_iverilog  iverilog仿真脚本  
-│  └─tb_vcs  VCS+Verdi仿真脚本   
+│  └─tb_vcs       VCS+Verdi仿真脚本   
 └─tools  
     └─asm  大黄鸭汇编器  
-
+```
 ### 仿真
 #### 逻辑仿真
 本项目提供了两套仿真脚本：iverilog+gtkwave和vcs+verdi。  
