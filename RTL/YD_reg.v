@@ -1,7 +1,7 @@
 module YD_reg (
 	input wire clk,  //时钟
 	input wire rst,  //高电平同步复位
-	input wire jpc,	//流水线气泡，高电平可写PC
+	input wire jpc,	//高电平可写PC
 	input wire dsv, //数据总线访问指示
 //输入口0
 	input wire [15:0]din0,

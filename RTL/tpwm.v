@@ -4,7 +4,7 @@ module tpwm
 	parameter AW = 13 
 )(
 	input			clk, //时钟
-	input 			rst,  //同步复位，高电平有效
+	input			 rst,  //同步复位，高电平有效
 	input [DW-1:0]	din, //数据输入
 	input [AW-1:0]	addr, //地址输入
 	input			we, //高电平写使能
@@ -29,9 +29,9 @@ Tx_PWM_P与Tx_PWM_N为差分信号
 [1]极性控制：计数值大于比较值时，Tx_PWM_P=[1]
 ---------------------------------------
 分频器：
-                |->T0
-    clk->|div|--|
-                |->T1
+				|->T0
+	clk->|div|--|
+				|->T1
 系统时钟送入分配器，分频器输出作为T0/T1的时钟源。
 分频器计算公式 Fdiv=(N+1)F
 Fdiv：分配器输出频率

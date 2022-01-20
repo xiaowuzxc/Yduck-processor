@@ -9,12 +9,15 @@ module YD_core
 	output	reg[15:0]	d_din, //数据输入
 	output 	reg[15:0]	d_addr, //地址输入
 	output	reg 		d_we, //高电平写使能
-	input 	wire[15:0]	d_dout //数据输出
+	input 	wire[15:0]	d_dout, //数据输出
+	//中断控制
+	input 	wire int_vld, //中断脉冲输入，1周期高脉冲表示中断发生
+	output 	wire int_rdy //数据输出，高电平可以接受中断，低电平无法响应
 );
 //寄存器定义
 reg rst_r;//复位打一拍
 reg jpc,jpc_r;//跳转指示，打一拍
-reg dwi;//数据空间写指示
+reg dwi;//数据空间写指示，插入NOP
 reg dsv_0;
 reg dsv_1;
 reg dsw;//双发射1级指示
@@ -42,6 +45,13 @@ reg d_we_z1;//指令执行阶段通道1，写数据空间使能
 wire [15:0]dout0;
 wire [15:0]dout1;
 wire [15:0]DKD;//直接输出DK或写入值
+wire inp;
+wire [15:0]int_din0;
+wire [3:0]int_waddr0;
+wire int_we0;
+wire [15:0]int_din1;
+wire [3:0]int_waddr1;
+wire int_we1;
 //内部参数定义
 
 
@@ -72,7 +82,7 @@ localparam PCA=4'b1111;
 
 //跳转则填充一次流水线
 always @(*) begin
-	if(jpc|jpc_r|dwi)
+	if(jpc|jpc_r|dwi|inp)
 		idata=16'h0;
 	else
 		idata=i_dout;
@@ -380,23 +390,50 @@ end
 
 wire [15:0]PC;
 assign i_addr=PC;//地址指示
-YD_reg u_YD_reg
-	(
-		.clk    (clk),
-		.rst    (rst),
-		.jpc    (jpc),
-		.dsv	(dsv_0 | dsv_1),
-		.din0   (din0),
-		.waddr0 (waddr0),
-		.we0    (we0),
-		.din1   (din1),
-		.waddr1 (waddr1),
-		.we1    (we1),
-		.raddr0 (raddr0),
-		.dout0  (dout0),
-		.raddr1 (raddr1),
-		.dout1  (dout1),
-		.PC     (PC),
-		.DKD	(DKD)
-	);
+YD_reg u_YD_reg//寄存器组
+(
+	.clk    (clk),
+	.rst    (rst),
+	.jpc    (int_jpc),
+	.dsv	(dsv_0 | dsv_1),
+	.din0   (int_din0),
+	.waddr0 (int_waddr0),
+	.we0    (int_we0),
+	.din1   (int_din1),
+	.waddr1 (int_waddr1),
+	.we1    (int_we1),
+	.raddr0 (raddr0),
+	.dout0  (dout0),
+	.raddr1 (raddr1),
+	.dout1  (dout1),
+	.PC     (PC),
+	.DKD	(DKD)
+);
+
+
+
+YD_int u_YD_int//中断控制器
+(
+	.clk        (clk),
+	.rst        (rst),
+	.int_vld    (int_vld),
+	.int_rdy    (int_rdy),
+	.PC         (PC),
+	.jpc        (jpc),
+	.int_jpc    (int_jpc),
+	.inp        (inp),
+	.din0       (din0),
+	.waddr0     (waddr0),
+	.we0        (we0),
+	.din1       (din1),
+	.waddr1     (waddr1),
+	.we1        (we1),
+	.int_din0   (int_din0),
+	.int_waddr0 (int_waddr0),
+	.int_we0    (int_we0),
+	.int_din1   (int_din1),
+	.int_waddr1 (int_waddr1),
+	.int_we1    (int_we1)
+);
+
 endmodule
