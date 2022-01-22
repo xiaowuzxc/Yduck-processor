@@ -3,6 +3,7 @@ tb_file_0=tb_soc.sv
 tb_file_1=tb_dbus.sv
 tb_file_2=tb_ibus.sv
 tb_file_3=tb_YD_reg.sv
+tb_file_4=tb_YD_int.sv
 #编译输出文件
 tb_obj=tb
 #verilog语法版本
@@ -26,6 +27,7 @@ list:
 	@echo 1: sim D bus
 	@echo 2: sim I bus
 	@echo 3: sim interal regs
+	@echo 4: sim interrupt controller
 	@echo c: clean tb file
 	@echo ------------------------------
 #-------------------------------------------------------------------------------------------------------
@@ -37,6 +39,8 @@ list:
 2: iver2 show
 .PHONY:3
 3: iver3 show
+.PHONY:4
+4: iver4 show
 #-------------------------------------------------------------------------------------------------------
 iver0:
 	iverilog $(v_ver) -o $(tb_obj) -y $(v_path) $(tb_file_0)
@@ -46,6 +50,8 @@ iver2:
 	iverilog $(v_ver) -o $(tb_obj) -y $(v_path) $(tb_file_2)
 iver3:
 	iverilog $(v_ver) -o $(tb_obj) -y $(v_path) $(tb_file_3)
+iver4:
+	iverilog $(v_ver) -o $(tb_obj) -y $(v_path) $(tb_file_4)
 #-------------------------------------------------------------------------------------------------------
 show:
 	vvp -n $(tb_obj) -lxt2

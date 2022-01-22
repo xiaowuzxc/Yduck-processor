@@ -1,4 +1,4 @@
-module tpwm
+module timer
 #(
 	parameter DW = 16,
 	parameter AW = 13 
@@ -12,10 +12,12 @@ module tpwm
 	output reg T0_PWM_P,//输入端口
 	output reg T0_PWM_N,//输入端口
 	output reg T1_PWM_P,//输出端口
-	output reg T1_PWM_N//输出端口
+	output reg T1_PWM_N,//输出端口
+	output reg intp_T0,//定时器T0[0]溢出中断，[1]比较中断
+	output reg intp_T1//定时器T1[0]溢出中断，[1]比较中断
 );
 /*
-定时PWM发生器T0/T1
+定时器T0/T1
 ---------------------------------------
 向上计数模式
 计数器TCNTx达到上溢值TATSx，装入影子寄存器
@@ -41,6 +43,9 @@ Fdiv：分配器输出频率
 影子寄存器
 TDIV，TATSx，TCMPx有影子寄存器。
 其作用是在分频器、定时器溢出时将设定值写入，防止计数器跑飞。
+---------------------------------------
+定时器中断  
+定时器T0/T1发生溢出，会触发一次中断。  
 ---------------------------------------
 */
 
@@ -98,8 +103,6 @@ if(rst) begin
 	TATS1 <= 16'h0;
 	TCMP0 <= 16'h0;
 	TCMP1 <= 16'h0;
-	//TCNT0 <= 16'h0;
-	//TCNT1 <= 16'h0;
 	dout <= 16'h0;
 end	
 else
@@ -128,33 +131,43 @@ always @(posedge clk) begin
 if(rst) begin
 	TCNT0 <= 16'h0;
 	TCNT1 <= 16'h0;
+	intp_T0 <= 1'b0;
+	intp_T1 <= 1'b0;
 	end	
 else begin
 	if(TCTR[0]) begin//T0
 		if(TCNT0==TATS0_r) begin//定时器溢出
 			TCNT0 <= 16'h0;//置0
+			intp_T0 <= 1'b1;//T0溢出中断
 			TATS0_r <= TATS0;//写影子寄存器
 			TCMP0_r <= TCMP0;//写影子寄存器
 			end
-		else 
+		else begin
 			TCNT0 <= TCNT0+1;//定时器+1
+			intp_T0 <= 1'b0;
+			end
 		end
 	else begin//停止状态
 		TCNT0 <= 16'h0;
+		intp_T0 <= 1'b0;
 		TATS0_r <= TATS0;
 		TCMP0_r <= TCMP0;
 		end
 	if(TCTR[8]) begin//T1
 		if(TCNT1==TATS1_r) begin//定时器溢出
 			TCNT1 <= 16'h0;//置0
+			intp_T1 <= 1'b1;//T1溢出中断
 			TATS1_r <= TATS1;//写影子寄存器
 			TCMP1_r <= TCMP1;//写影子寄存器
 			end
-		else 
+		else begin
 			TCNT1 <= TCNT1+1;//定时器+1
+			intp_T0 <= 1'b0;
+			end
 		end
 	else begin//停止状态
 		TCNT1 <= 16'h0;
+		intp_T0 <= 1'b0;
 		TATS1_r <= TATS1;
 		TCMP1_r <= TCMP1;
 		end

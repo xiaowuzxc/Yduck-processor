@@ -13,9 +13,10 @@
 - 哈佛结构
 - 两级流水线，指令单周期执行(除SV)
 - 8位指令双发射
+- 非向量中断
 - 带有数据总线
-- IO寄存器映射  
-- 通用IO，定时PWM外设  
+- IO寄存器映射
+- 通用IO，定时PWM外设
 
 **3. 大黄鸭汇编器脚本**  
 - 将大黄鸭汇编程序转换为处理器可执行的二进制代码
@@ -24,6 +25,9 @@
 - 立即数溢出检查
 - 写入冲突检查
 - [汇编器GUI版](https://gitee.com/xiaowuzxc/Yduck-Assembler-GUI)  
+
+#### 处理器功能框图
+![大黄鸭SoC结构](/pic/png/soc.png)  
 
 #### 项目文档
 [大黄鸭指令集](https://gitee.com/xiaowuzxc/Yduck-processor/blob/master/doc/%E5%A4%A7%E9%BB%84%E9%B8%AD%E6%8C%87%E4%BB%A4%E9%9B%86.md)  
@@ -47,11 +51,13 @@
 ├─RTL  
 │  │  dbus.v  数据总线  
 │  │  ibus.v  指令总线  
+│  │  intc.v  中断管理器
 │  │  io.v   io外设  
 │  │  ram.v  ram外设  
 │  │  SoC.v  SoC顶层  
-│  │  tpwm.v tpwm外设  
+│  │  timer.v 定时器PWM外设  
 │  │  YD_core.v  大黄鸭内核  
+│  │  YD_int.v   中断控制器
 │  │  YD_reg.v   寄存器组  
 │  ├─tb_iverilog  iverilog仿真脚本  
 │  └─tb_vcs       VCS+Verdi仿真脚本   

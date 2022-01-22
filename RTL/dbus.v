@@ -25,7 +25,10 @@ module dbus
 	output reg T0_PWM_P,//T0_PWM_P
 	output reg T0_PWM_N,//T0_PWM_N
 	output reg T1_PWM_P,//T1_PWM_P
-	output reg T1_PWM_N//T1_PWM_N
+	output reg T1_PWM_N,//T1_PWM_N
+	input wire [3:0]intp_ext,//外部中断
+	input wire int_rdy,//中断控制器准备好，1有效
+	output reg int_vld//中断触发脉冲输出
 );
 localparam BKAW=12;
 localparam DW = 16;
@@ -49,7 +52,20 @@ wire [DW-1:0]s2_dout;
 reg  [DW-1:0]s2_din;
 reg  [AW-5:0]s2_addr;
 reg  s2_we;
+//s3.addr=0011 xxxx xxxx xxxx
+localparam s3_bk=4'h3;
+wire [DW-1:0]s3_dout;
+reg  [DW-1:0]s3_din;
+reg  [AW-5:0]s3_addr;
+reg  s3_we;
 /*---------定义区块连线-----------*/
+
+/*---------中断通道配置-----------*/
+wire intp_T0;
+wire intp_T1;
+wire [7:0]intp_i={intp_ext,2'b0,intp_T1,intp_T0};
+
+/*---------中断通道配置-----------*/
 
 /*---------主->从数据通路-----------*/
 reg [DW-1:0]dinz;//空闲通路
@@ -72,6 +88,11 @@ always @(*) begin
 			s2_addr=addr[AW-5:0];
 			s2_we=we;
 			end
+		s3_bk:begin
+			s3_din=din;
+			s3_addr=addr[AW-5:0];
+			s3_we=we;
+			end
 		default:begin
 			dinz=din;
 			addrz=addr[AW-5:0];
@@ -93,7 +114,8 @@ always @(*) begin
 	case(bkr)
 		s0_bk:dout=s0_dout;
 		s1_bk:dout=s1_dout;
-		s1_bk:dout=s2_dout;
+		s2_bk:dout=s2_dout;
+		s3_bk:dout=s3_dout;
 		default:dout=32'h0;
 	endcase
 end
@@ -101,49 +123,63 @@ end
 
 
 ram #(
-
-	.DW     		( 16 		),
-	.AW     		( BKAW		),
-	.RAM_AW 		( RAM_AW 	))
-u_ram(
-	//ports
-	.clk  		( clk  		),
-	.rst  		( rst  		),
-	.din  		( s0_din  		),
-	.addr 		( s0_addr 		),
-	.we   		( s0_we   		),
-	.dout 		(s0_dout	)
+	.DW(16),
+	.AW(BKAW),
+	.RAM_AW(RAM_AW)
+)u_ram(
+	.clk     (clk),
+	.rst     (rst),
+	.din     (s0_din),
+	.addr    (s0_addr),
+	.we      (s0_we),
+	.dout    (s0_dout)
 );
 
 io #(
-	.DW 		( 16 		),
-	.AW 		( BKAW		))
-u_io(
-	//ports
-	.clk      		( clk      		),
-	.rst      		( rst      		),
-	.din      		( s1_din      		),
-	.addr     		( s1_addr     		),
-	.we       		( s1_we       		),
-	.dout     		( s1_dout     		),
-	.gpio_in  		( gpio_in  		),
-	.gpio_out 		( gpio_out 		)
+	.DW(16),
+	.AW(BKAW)
+)u_io(
+	.clk     (clk),
+	.rst     (rst),
+	.din     (s1_din),
+	.addr    (s1_addr),
+	.we      (s1_we),
+	.dout    (s1_dout),
+	.gpio_in (gpio_in),
+	.gpio_out(gpio_out)
 );
 
-tpwm #(
-	.DW 		( 16 		),
-	.AW 		( BKAW		))
-u_tpwm(
-	.clk      		( clk      		),
-	.rst      		( rst      		),
-	.din      		( s2_din      		),
-	.addr     		( s2_addr     		),
-	.we       		( s2_we       		),
-	.dout     		( s2_dout     		),
+timer #(
+	.DW(16),
+	.AW(BKAW)
+)u_timer(
+	.clk     (clk),
+	.rst     (rst),
+	.din     (s2_din),
+	.addr    (s2_addr),
+	.we      (s2_we),
+	.dout    (s2_dout),
 	.T0_PWM_P(T0_PWM_P),
 	.T0_PWM_N(T0_PWM_N),
 	.T1_PWM_P(T1_PWM_P),
-	.T1_PWM_N(T1_PWM_N)
+	.T1_PWM_N(T1_PWM_N),
+	.intp_T0 (intp_T0),
+	.intp_T1 (intp_T1)
+);
+
+intc #(
+	.DW(16),
+	.AW(BKAW)
+)u_intc (
+	.clk     (clk),
+	.rst     (rst),
+	.din     (s3_din),
+	.addr    (s3_addr),
+	.we      (s3_we),
+	.dout    (s3_dout),
+	.intp_i  (intp_i),
+	.int_rdy (int_rdy),
+	.int_vld (int_vld)
 );
 
 endmodule

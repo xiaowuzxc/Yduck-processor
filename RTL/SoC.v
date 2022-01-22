@@ -10,8 +10,9 @@ module SoC (
 	output reg T1_PWM_P,//T1_PWM_P
 	output reg T1_PWM_N,//T1_PWM_N
 	//中断
-	input 	wire int_vld, //中断脉冲输入，1周期高脉冲表示中断发生
-	output 	wire int_rdy //数据输出，高电平可以接受中断，低电平无法响应
+	input wire [3:0]intp_ext,//外部中断
+	input wire intp_s //强制中断
+
 );
 parameter RAM_AW=7;
 parameter ROM_AW=7;
@@ -19,7 +20,7 @@ parameter ROM_AW=7;
 //
 wire [15:0]i_addr,i_dout,d_din,d_addr,d_dout;
 wire d_we;
-
+wire int_rdy,int_vld;
 YD_core u_YD_core
 (
 	.clk    (clk),
@@ -30,7 +31,7 @@ YD_core u_YD_core
 	.d_addr (d_addr),
 	.d_we   (d_we),
 	.d_dout (d_dout),
-	.int_vld(int_vld),
+	.int_vld(int_vld|intp_s),
 	.int_rdy(int_rdy)
 );
 dbus #(
@@ -47,7 +48,10 @@ dbus #(
 	.T0_PWM_P(T0_PWM_P),//T0_PWM_P
 	.T0_PWM_N(T0_PWM_N),//T0_PWM_N
 	.T1_PWM_P(T1_PWM_P),//T1_PWM_P
-	.T1_PWM_N(T1_PWM_N)//T1_PWM_N
+	.T1_PWM_N(T1_PWM_N),//T1_PWM_N
+	.intp_ext(intp_ext),
+	.int_rdy (int_rdy),
+	.int_vld (int_vld)
 );
 ibus #(
 	.ROM_AW(ROM_AW)
