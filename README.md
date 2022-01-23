@@ -30,6 +30,7 @@
 ![大黄鸭SoC结构](/pic/png/soc.png)  
 
 #### 项目文档
+详细文档位于`./doc`  
 [大黄鸭指令集](https://gitee.com/xiaowuzxc/Yduck-processor/blob/master/doc/%E5%A4%A7%E9%BB%84%E9%B8%AD%E6%8C%87%E4%BB%A4%E9%9B%86.md)  
 [系统结构](https://gitee.com/xiaowuzxc/Yduck-processor/blob/master/doc/%E7%B3%BB%E7%BB%9F%E7%BB%93%E6%9E%84.md)  
 [大黄鸭汇编器](https://gitee.com/xiaowuzxc/Yduck-processor/blob/master/doc/%E5%A4%A7%E9%BB%84%E9%B8%AD%E6%B1%87%E7%BC%96%E5%99%A8.md)  
@@ -40,7 +41,7 @@
 正所谓：工欲善其事，必先利其器。  
 - 处理器RTL设计采用Verilog-2001，此版本具有很多好用的特性，并且受到综合器的广泛支持。  
 - 处理器RTL验证采用System Verilog-2005，此版本充分满足使用需求，并且受到仿真器的广泛支持。  
-- 数字逻辑仿真采用iverilog，这是一个跨平台的开源软件，可以快速地安装和使用。也有VCS仿真脚本。  
+- 数字逻辑仿真采用iverilog，这是一个跨平台的开源软件，可以快速地安装和使用。同时也提供了VCS仿真脚本。  
 - 汇编器采用Python3，脚本语言清晰易懂，搭配正则表达式便于文本操作，跨平台并且Python3对中文有着良好的支持。  
 - 所有文本采用UTF-8编码，具备良好的多语言支持和跨平台特性。  
 
@@ -49,16 +50,16 @@
 ├─doc  相关文档   
 ├─pic  图片仓库    
 ├─RTL  
-│  │  dbus.v  数据总线  
-│  │  ibus.v  指令总线  
-│  │  intc.v  中断管理器
-│  │  io.v   io外设  
-│  │  ram.v  ram外设  
-│  │  SoC.v  SoC顶层  
-│  │  timer.v 定时器PWM外设  
-│  │  YD_core.v  大黄鸭内核  
-│  │  YD_int.v   中断控制器
-│  │  YD_reg.v   寄存器组  
+│  │  dbus.v      数据总线  
+│  │  ibus.v      指令总线  
+│  │  intc.v      中断管理器
+│  │  io.v        io外设  
+│  │  ram.v       ram外设  
+│  │  SoC.v       SoC顶层  
+│  │  timer.v     定时器PWM外设  
+│  │  YD_core.v   大黄鸭内核  
+│  │  YD_int.v    中断控制器
+│  │  YD_reg.v    寄存器组  
 │  ├─tb_iverilog  iverilog仿真脚本  
 │  └─tb_vcs       VCS+Verdi仿真脚本   
 └─tools  
@@ -69,16 +70,17 @@
 本项目提供了两套仿真脚本：iverilog+gtkwave和vcs+verdi。  
 iverilog+gtkwave同时支持Windows和Linux，并且提供了子模块仿真。  
 vcs+verdi仅支持Linux，并且仅提供了SoC仿真脚本。  
-请更具喜好和需求选择。  
+请根据喜好和需求选择。  
 1. iverilog  
+首先，终端输入`iverilog -v`显示版本号，请确认版本号>=11，低于此版本无法正常执行仿真。  
 请进入`RTL/tb_iverilog`目录。  
 - windows  
-如果未安装iverilog，请[安装](http://bleyer.org/icarus/)  
+如果未安装或iverilog版本低，请[安装](http://bleyer.org/icarus/)v11版本。  
 双击make.bat，根据提示执行不同目标。  
 - linux  
-如果未安装iverilog，请在终端输入`sudo apt install iverilog`  
+如果未安装或iverilog版本低，请在终端输入`sudo apt install iverilog`或通过源码编译安装。  
 打开终端，输入`make`会显示不同目标。  
-根据提示，输入`make <cmd>`执行对于目标。  
+根据提示，输入`make <cmd>`执行对应目标。  
 2. vcs
 请进入`RTL/tb_vcs`目录。  
 打开终端，输入`make`执行仿真。  
