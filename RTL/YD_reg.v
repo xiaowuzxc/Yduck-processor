@@ -117,6 +117,7 @@ else begin
 	we1_r <= we1;
 	end
 end
+
 //读取寄存器
 always @(*) begin
 	case (raddr0_r)
@@ -154,7 +155,7 @@ always @(*) begin
 		endcase
 
 	case (raddr1_r)
-		ZEA:dout1_r=16'h0;
+		ZEA:dout1=16'h0;
 		DKA:
 			if ((raddr1_r==waddr0_r&&we0_r)||(raddr1_r==waddr1_r&&we1_r)) //同步写穿
 				if(raddr1_r==waddr0_r&&we0_r)
@@ -190,6 +191,7 @@ end
 
 //直接输出DK
 always @(*) begin
+	DKD=DK;
 	if(waddr0==DKA && we0 || waddr1==DKA && we1)//如果同时在写DK
 		if(waddr0==DKA && we0)
 			DKD=din0;

@@ -72,6 +72,20 @@ reg [DW-1:0]dinz;//空闲通路
 reg [AW-5:0]addrz;//空闲通路
 reg wez;//空闲通路
 always @(*) begin
+	//默认状态
+	s0_din=0;
+	s0_addr=0;
+	s0_we=0;
+	s1_din=0;
+	s1_addr=0;
+	s1_we=0;
+	s2_din=0;
+	s2_addr=0;
+	s2_we=0;
+	s3_din=0;
+	s3_addr=0;
+	s3_we=0;
+	//
 	case(addr[AW-1:AW-4])
 		s0_bk:begin
 			s0_din=din;//主->从数据通路

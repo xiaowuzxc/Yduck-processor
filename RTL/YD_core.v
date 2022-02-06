@@ -104,6 +104,8 @@ always @(*) begin
 	d_addr_d0=16'h0;
 	dsv_0=1'b0;
 	dsv_1=1'b0;
+	raddr1=4'h0;
+	d_addr_d1=16'h0;
 	case (idata[15:12])
 		NF:begin//RG=~RG
 			dsw=1'b1;//当前为8b指令
@@ -183,8 +185,6 @@ always @(*) begin
 	endcase
 //指令译码1，生成读地址
 	if(dsw) begin
-		raddr1=4'h0;
-		d_addr_d1=16'h0;
 		case (idata[7:4])
 			NF:raddr1=idata[3:0];
 			LD:d_addr_d1=DKD;
@@ -382,6 +382,7 @@ always @(*) begin
 			d_we = d_we_z1 | d_we_z0;
 			end
 		else begin
+			d_din = 16'h0;
 			d_addr = d_addr_d0 | d_addr_d1;
 			d_we =1'b0;
 			end
