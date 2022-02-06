@@ -29,10 +29,10 @@ localparam INTC_A=12'h0;//中断全局配置
 localparam INT0_A=12'h1;//中断0123配置
 localparam INT1_A=12'h2;//中断4567配置
 
-reg [16:0]INTC;//中断全局配置寄存器
+reg [10:0]INTC;//中断全局配置寄存器
 //INTC[0]0:全局中断关，1:全局中断开
 //INTC[10:8]上一次成功中断的中断号
-reg [16:0]INT0;//中断0123配置寄存器
+reg [15:0]INT0;//中断0123配置寄存器
 /*配置说明
 INT0[3:0]中断0配置
 INT0[0]0:中断关，1:中断开
@@ -134,7 +134,7 @@ end
 //中断触发方式控制
 always @(*) begin
 	for(j=0;j<=7;j=j+1) begin
-		case (INTA[4*j+2])
+		case ({INTA[4*j+3],INTA[4*j+2]})
 			2'b00: intp_tg[j]=intp_i_r[j];
 			2'b01: intp_tg[j]=~intp_i_r[j];
 			2'b10: intp_tg[j]=(intp_i_r[j] && ~intp_i_rr[j])?1'b1:1'b0;

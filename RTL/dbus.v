@@ -22,13 +22,13 @@ module dbus
 	output reg [15:0]	dout, //数据输出
 	input wire [15:0]	gpio_in,//输入端口
 	output wire [15:0]gpio_out,//输出端口
-	output reg T0_PWM_P,//T0_PWM_P
-	output reg T0_PWM_N,//T0_PWM_N
-	output reg T1_PWM_P,//T1_PWM_P
-	output reg T1_PWM_N,//T1_PWM_N
+	output wire T0_PWM_P,//T0_PWM_P
+	output wire T0_PWM_N,//T0_PWM_N
+	output wire T1_PWM_P,//T1_PWM_P
+	output wire T1_PWM_N,//T1_PWM_N
 	input wire [3:0]intp_ext,//外部中断
 	input wire int_rdy,//中断控制器准备好，1有效
-	output reg int_vld//中断触发脉冲输出
+	output wire int_vld//中断触发脉冲输出
 );
 localparam BKAW=12;
 localparam DW = 16;
