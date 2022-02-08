@@ -64,11 +64,13 @@
 │  ├─tb_iverilog  iverilog仿真脚本  
 │  └─tb_vcs       VCS+Verdi仿真脚本   
 └─tools  
-    └─asm  大黄鸭汇编器  
+    ├─asm  大黄鸭汇编器  
+    └─setenv 环境配置
 ```
 ### 仿真
+linux系统下，如果不想手动操作，可以进入`tools/setenv`在终端执行`sh autoset.sh`命令，一键配置环境。   
 #### 逻辑仿真
-本项目提供了两套仿真脚本：iverilog+gtkwave和vcs+verdi。  
+本项目提供了两套仿真脚本：iverilog+gtkwave 和 vcs+verdi。  
 iverilog+gtkwave同时支持Windows和Linux，并且提供了子模块仿真。  
 vcs+verdi仅支持Linux，并且仅提供了SoC仿真脚本。  
 请根据喜好和需求选择。  
@@ -89,13 +91,14 @@ vcs+verdi仅支持Linux，并且仅提供了SoC仿真脚本。
 
 #### 编写程序
 大黄鸭汇编器是跨平台的，如果想要编写汇编程序并仿真，需要安装python3及以上版本。  
-[汇编器GUI版](https://gitee.com/xiaowuzxc/Yduck-Assembler-GUI)是专注于Windows平台的汇编器，具备~~友好的~~图形化界面。  
 进入`tools/asm`目录，请在`asm.txt`编写程序。  
 Win系统双击run.bat执行汇编；Linux系统在终端输入`make`执行汇编。  
 程序有误，终端会显示错误信息。  
+[大黄鸭汇编器GUI版](https://gitee.com/xiaowuzxc/Yduck-Assembler-GUI)是专注于Windows平台的汇编器，具备~~友好的~~图形化界面。  
 
 ### 综合
 大黄鸭处理器采用Verilog-2001语法标准，RTL设计可以被绝大多数综合器所综合。不会产生锁存器，有利于时序分析。  
+#### FPGA平台
 ram、rom采用xilinx推荐的建模方式，在FPGA平台，可以被综合成BRAM。  
 Vivado 2019.2，7K325T FPGA，综合报告如下：  
 | 资源  |       |
@@ -105,6 +108,9 @@ Vivado 2019.2，7K325T FPGA，综合报告如下：
 | BRAM  | 0.5   |
   
 时钟约束在10MHz，根据时序报告推测实际可以跑到80MHz。  
+
+#### ASIC平台
+电脑空间不够，把装了新思套件的虚拟机删了，回学校再搞  
 
 ### 杂谈:我为什么要做大黄鸭
 本项目开坑没有什么特殊原因~~纯属脑子一热~~。开坑前，我正沉迷于学习FPGA和计算机体系结构，研究各种指令集(RISC-V,MIPS,8051...)，使用各种嵌入式处理器，移植tinyriscv,e203等各种开源处理器，甚至去看了看古董(~~川口三~~6205,经典8051)。
