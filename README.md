@@ -20,7 +20,8 @@
 - 通用IO，定时PWM，中断管理外设
 
 **3. 大黄鸭汇编器脚本**  
-- 将大黄鸭汇编程序转换为处理器可执行的二进制代码
+- 将大黄鸭汇编程序转换为写入指令存储器的文本文件
+- 清除多余空格、行
 - 容许#开头的单行注释
 - 语法检查
 - 立即数溢出检查
@@ -68,7 +69,7 @@
     └─setenv 环境配置
 ```
 ### 仿真
-linux系统下，如果不想手动操作，可以进入`tools/setenv`在终端执行`sh autoset.sh`命令，一键配置环境。   
+linux系统可以进入`tools/setenv`，在终端执行`sh autoset.sh`命令，一键自动配置仿真环境。   
 #### 逻辑仿真
 本项目提供了两套仿真脚本：iverilog+gtkwave 和 vcs+verdi。  
 iverilog+gtkwave同时支持Windows和Linux，并且提供了子模块仿真。  
@@ -97,7 +98,7 @@ Win系统双击run.bat执行汇编；Linux系统在终端输入`make`执行汇�
 [大黄鸭汇编器GUI版](https://gitee.com/xiaowuzxc/Yduck-Assembler-GUI)是专注于Windows平台的汇编器，具备~~友好的~~图形化界面。  
 
 ### 综合
-大黄鸭处理器采用Verilog-2001语法标准，RTL设计可以被绝大多数综合器所综合。不会产生锁存器，有利于时序分析。  
+大黄鸭处理器采用Verilog-2001语法标准，RTL设计可以被绝大多数综合器所综合。使用Vivado综合后没有产生锁存器，有利于时序分析。  
 #### FPGA平台
 ram、rom采用xilinx推荐的建模方式，在FPGA平台，可以被综合成BRAM。  
 Vivado 2019.2，7K325T FPGA，综合报告如下：  
