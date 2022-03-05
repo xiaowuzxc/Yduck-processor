@@ -112,6 +112,7 @@ Vivado 2019.2，7K325T FPGA，综合报告如下：
 时钟约束在10MHz，根据时序报告推测实际可以跑到80MHz。  
 
 #### ASIC平台
+没有Memory Compiler,存储器就让综合器想办法吧。  
 综合工具：Design Vision O-2018.06-SP1  
 工艺库：TSMC_013 fast  
 | Area  | 参数 |
@@ -121,7 +122,7 @@ Vivado 2019.2，7K325T FPGA，综合报告如下：
 | Buf/Inv area | 1688.9 |
 | Noncombinational area | 10374.5 |
 
-| Power  | 工作电压=1.32 |
+| Power  | 工作电压 1.32v |
 |-------|-------|
 | Cell Leakage Power | 2.5305 uW |
 | Total Dynamic Power | 1.3192 mW |
