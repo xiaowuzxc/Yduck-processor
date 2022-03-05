@@ -112,7 +112,21 @@ Vivado 2019.2，7K325T FPGA，综合报告如下：
 时钟约束在10MHz，根据时序报告推测实际可以跑到80MHz。  
 
 #### ASIC平台
-电脑空间不够，把装了新思套件的虚拟机删了，回学校再搞  
+综合工具：Design Vision O-2018.06-SP1  
+工艺库：TSMC_013 fast  
+| Area  | 参数 |
+|-------|-------|
+| Total cell area | 30254.4 |
+| Combinational area | 19879.9 |
+| Buf/Inv area | 1688.9 |
+| Noncombinational area | 10374.5 |
+
+| Power  | 工作电压=1.32 |
+|-------|-------|
+| Cell Leakage Power | 2.5305 uW |
+| Total Dynamic Power | 1.3192 mW |
+| Cell Internal Power | 881.6719 uW |
+| Net Switching Power | 437.5506 uW  |
 
 ### 杂谈:我为什么要做大黄鸭
 本项目开坑没有什么特殊原因~~纯属脑子一热~~。开坑前，我正沉迷于学习FPGA和计算机体系结构，研究各种指令集(RISC-V,MIPS,8051...)，使用各种嵌入式处理器，移植tinyriscv,e203等各种开源处理器，甚至去看了看古董(~~川口三~~6205,经典8051)。
