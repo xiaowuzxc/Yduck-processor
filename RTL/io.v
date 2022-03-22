@@ -13,8 +13,8 @@ module io
 	output wire [DW-1:0]gpio_out//输出端口
 );
 
-localparam GPI_A = 12'h00;
-localparam GPO_A = 12'h01;
+localparam GPI_A = 12'h000;
+localparam GPO_A = 12'h001;
 reg [DW-1:0]gpio_in_reg;
 reg [DW-1:0]gpio_out_reg;
 always @(posedge clk) begin
@@ -30,13 +30,13 @@ end
 else
 	if(we)
 		case (addr)
-			GPO_A: #0.1 gpio_out_reg <= din;
+			GPO_A: gpio_out_reg <= din;
 			default: ;
 		endcase
 	else
 		case (addr)
-			GPI_A: #0.1 dout <= gpio_in_reg;
-			default: ;
+			GPI_A: dout <= gpio_in_reg;
+			default: dout <= 0;
 		endcase
 end
 
