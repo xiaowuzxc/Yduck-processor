@@ -6,9 +6,10 @@
 
 #### 本项目包含以下内容：  
 **1. 大黄鸭指令集设计**  
+- RISC精简指令集设计理念
 - 全新设计的大黄鸭指令集
 - 加载存储结构
-- 16条指令，8/16位长度，16个寄存器，16位数据/地址位宽  
+- 16条指令，8/16位指令长度，16个寄存器，16位数据/地址位宽  
 
 **2. 大黄鸭处理器设计**  
 - 全可综合的Verilog源码
@@ -27,7 +28,7 @@
 - 语法检查
 - 立即数溢出检查
 - 寄存器写入冲突检查
-- [汇编器GUI版](https://gitee.com/xiaowuzxc/Yduck-Assembler-GUI)  
+- [更强大的大黄鸭汇编器GUI版](https://gitee.com/xiaowuzxc/Yduck-Assembler-GUI)  
 
 #### 处理器功能框图
 ![大黄鸭SoC结构](/pic/png/soc.png)  
@@ -42,8 +43,8 @@
 
 #### 开发工具
 正所谓：工欲善其事，必先利其器。  
-- 处理器RTL设计采用Verilog-2001，此版本具有很多好用的特性，并且受到综合器的广泛支持。  
-- 处理器RTL验证采用System Verilog-2005，此版本充分满足使用需求，并且受到仿真器的广泛支持。  
+- 处理器RTL设计采用Verilog-2001，此版本可读性更强，代码密度更高，并且受到综合器的广泛支持。  
+- 处理器RTL验证采用System Verilog-2005，此版本充分满足基本的仿真需求，并且受到仿真器的广泛支持。  
 - 数字逻辑仿真采用iverilog，这是一个跨平台的开源软件，可以快速地安装和使用。同时也提供了VCS仿真脚本。  
 - 汇编器采用Python3，脚本语言清晰易懂，搭配正则表达式便于文本操作，跨平台并且对中文有着良好的支持。  
 - 所有文本采用UTF-8编码，具备良好的多语言和跨平台支持。  
@@ -79,14 +80,14 @@ vcs+verdi仅支持Linux，并且仅提供了SoC仿真脚本。
 1. iverilog  
 首先，终端输入`iverilog -v`显示版本号，请确认版本号>=11，低于此版本无法正常执行仿真。  
 请进入`RTL/tb_iverilog`目录。  
-- windows  
-如果未安装或iverilog版本低，请[安装](http://bleyer.org/icarus/)v11版本。  
-双击make.bat，根据提示执行不同目标。  
-- linux  
-如果未安装或iverilog版本低，请在终端输入`sudo apt install iverilog`或通过源码编译安装。  
-打开终端，输入`make`会显示不同目标。  
-根据提示，输入`make <cmd>`执行对应目标。  
-2. vcs
+    - windows  
+    如果未安装或iverilog版本低，请[安装](http://bleyer.org/icarus/)v11版本。  
+    双击make.bat，根据提示执行不同目标。  
+    - linux  
+    如果未安装或iverilog版本低，请在终端输入`sudo apt install iverilog`或通过源码编译安装。  
+    打开终端，输入`make`会显示不同目标。  
+    根据提示，输入`make <cmd>`执行对应目标。  
+2. VCS
 请进入`RTL/tb_vcs`目录。  
 打开终端，输入`make`执行仿真。  
 打开终端，输入`make clean`清理文件。  
