@@ -1,7 +1,7 @@
 module timer
 #(
 	parameter DW = 16,
-	parameter AW = 13 
+	parameter AW = 12 
 )(
 	input			clk, //时钟
 	input			 rst,  //同步复位，高电平有效

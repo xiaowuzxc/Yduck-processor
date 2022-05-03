@@ -34,25 +34,25 @@ localparam BKAW=12;
 localparam DW = 16;
 localparam AW = 16;
 /*---------定义区块连线-----------*/
-//s0,addr=0000 xxxx xxxx xxxx
+//s0,ram,addr=0000 xxxx xxxx xxxx
 localparam s0_bk=4'h0;//区块编号：s<num>_bk=4'h<num>
 wire [DW-1:0]s0_dout;//从->主数据通路
 reg  [DW-1:0]s0_din;//主->从数据通路
 reg  [AW-5:0]s0_addr;//地址通路
 reg  s0_we;//高电平写使能
-//s1.addr=0001 xxxx xxxx xxxx
+//s1,io,addr=0001 xxxx xxxx xxxx
 localparam s1_bk=4'h1;
 wire [DW-1:0]s1_dout;
 reg  [DW-1:0]s1_din;
 reg  [AW-5:0]s1_addr;
 reg  s1_we;
-//s2.addr=0010 xxxx xxxx xxxx
+//s2,timer,addr=0010 xxxx xxxx xxxx
 localparam s2_bk=4'h2;
 wire [DW-1:0]s2_dout;
 reg  [DW-1:0]s2_din;
 reg  [AW-5:0]s2_addr;
 reg  s2_we;
-//s3.addr=0011 xxxx xxxx xxxx
+//s3,intc,addr=0011 xxxx xxxx xxxx
 localparam s3_bk=4'h3;
 wire [DW-1:0]s3_dout;
 reg  [DW-1:0]s3_din;
